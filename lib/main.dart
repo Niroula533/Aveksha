@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'patientRegistrationPage.dart';
 import 'doctorRegistrationPage.dart';
+import 'routeGenerator.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: FirstPage(),
+      initialRoute: '/login',
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }
@@ -34,6 +36,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Color.fromARGB(255, 255, 255, 255),
             elevation: 0,
             title: Container(
@@ -62,11 +65,7 @@ class _FirstPageState extends State<FirstPage> {
                     )),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DoctorRegistrationPage()),
-                    );
+                    Navigator.of(context).pushNamed('/doctorRegistration');
                   },
                   child: Container(
                       margin: EdgeInsets.fromLTRB(20, 40, 20, 40),
@@ -83,11 +82,7 @@ class _FirstPageState extends State<FirstPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PatientRegistrationPage()),
-                    );
+                    Navigator.of(context).pushNamed('/patientRegistration');
                   },
                   child: Container(
                       margin: EdgeInsets.fromLTRB(20, 40, 20, 40),

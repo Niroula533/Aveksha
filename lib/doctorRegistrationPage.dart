@@ -47,14 +47,20 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
             backgroundColor: Color.fromARGB(255, 255, 255, 255),
             elevation: 0,
-            title: Container(
-                // child: Image.asset('image/aveksha_logo.png'),
-                margin: EdgeInsets.fromLTRB(20, 10, 0, 0),
-                child: Image.asset('images/aveksha_logo.png',
-                    height: 100, width: 200),
-                padding: EdgeInsets.all(5.0))),
+            title: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushNamed('/registration');
+              },
+              child: Container(
+                  // child: Image.asset('image/aveksha_logo.png'),
+                  margin: EdgeInsets.fromLTRB(20, 10, 0, 0),
+                  child: Image.asset('images/aveksha_logo.png',
+                      height: 100, width: 200),
+                  padding: EdgeInsets.all(5.0)),
+            )),
         body: Container(
             height: double.infinity,
             decoration: BoxDecoration(
@@ -179,7 +185,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                           GestureDetector(
                             onTap: () => {
                               if (_formKey.currentState!.validate())
-                                {Navigator.pop(context)}
+                                {Navigator.of(context).pushNamed('/login')}
                             },
                             child: Container(
                                 margin: EdgeInsets.fromLTRB(20, 20, 20, 20),
