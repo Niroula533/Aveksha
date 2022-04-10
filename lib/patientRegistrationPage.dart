@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
 
 class PatientRegistrationPage extends StatefulWidget {
   const PatientRegistrationPage({Key? key}) : super(key: key);
@@ -17,7 +18,12 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
   final TextEditingController _pass = TextEditingController();
   final TextEditingController _confirmPass = TextEditingController();
   final TextEditingController _pickedDate = TextEditingController();
-
+  final TextEditingController _fullName = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _address = TextEditingController();
+  final TextEditingController _contact = TextEditingController();
+  final _genderList = ['Male', 'Female', 'Others'];
+  var _gender;
   @override
   void dispose() {
     _pass.dispose();
@@ -43,10 +49,11 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
   //       });
   // }
 
-  Widget InputBox(text) {
+  Widget InputBox(text, textController) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: TextFormField(
+        controller: textController,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Field is Empty';
@@ -61,6 +68,30 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
         ),
       ),
     );
+  }
+
+  Future<dynamic> handleRegister(BuildContext context, email) async {
+    try {
+      List<String> name = _fullName.text.split(' ');
+      var response = await Dio().post('http://localhost:5000/register', data: {
+        'firstName': name[0],
+        'lastName': name[1],
+        'email': _email.text,
+        'phone': _contact.text,
+        'password': _pass.text,
+        'role': 0,
+        'address': _address
+      });
+
+      if (response.data['msg'] == 'Registered successfully!') {
+        Navigator.of(context).pushNamed('/otp', arguments: email);
+      } else {
+        return response.data;
+      }
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -110,8 +141,8 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          InputBox('Full Name'),
-                          InputBox('Email'),
+                          InputBox('Full Name', _fullName),
+                          InputBox('Email', _email),
                           // for checking password
                           Padding(
                             padding: const EdgeInsets.all(20),
@@ -155,7 +186,7 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                             ),
                           ),
 
-                          InputBox('Address'),
+                          InputBox('Address', _address),
                           //DOB
                           Padding(
                             padding: const EdgeInsets.all(20),
@@ -196,8 +227,23 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                               },
                             ),
                           ),
+                          DropdownButton(
+                            hint: Text('Please choose a gender'),
+                            value: _gender,
+                            items: _genderList.map((gender) {
+                              return DropdownMenuItem(
+                                child: new Text(gender),
+                                value: gender,
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _gender = newValue;
+                              });
+                            },
+                          ),
 
-                          InputBox('Gender'),
+                          // InputBox('Gender', _gender),
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: TextFormField(
@@ -222,10 +268,30 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => {
+                            onTap: () async {
                               //funtion to go to login here
-                              if (_formKey.currentState!.validate())
-                                {Navigator.of(context).pushNamed('/login')}
+                              if (_formKey.currentState!.validate()) {
+                                // var h =
+                                //     await handleRegister(context, _email.text);
+                                // if (h == '') {
+                                //   var popup = AlertDialog(
+                                //     title: Text('Registration unsucessfull!'),
+                                //     content: Text(h['msg']),
+                                //     actions: <Widget>[
+                                //       TextButton(
+                                //         child: Text('okay'),
+                                //         onPressed: () {
+                                //           Navigator.of(context).pop();
+                                //         },
+                                //       )
+                                //     ],
+                                //   );
+                                //   return showDialog(
+                                //       context: context,
+                                //       builder: (BuildContext) => popup);
+                                // }
+                                Navigator.of(context).pushNamed('/otp');
+                              }
                             },
                             child: Container(
                                 margin: EdgeInsets.fromLTRB(20, 20, 20, 20),

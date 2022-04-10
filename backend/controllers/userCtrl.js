@@ -1,10 +1,11 @@
 const User = require("../models/userModel");
-const NMC = require("../models/nmcDetails");
 const Patient = require("../models/patientModel");
 const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const hospitalModel = require("../models/hospitalModel");
+const labTechnicianModel = require("../models/labTechnicianModel");
 require("dotenv").config();
 
 const userCtrl = {
@@ -52,7 +53,7 @@ const userCtrl = {
       const encryptedPass = await bcrypt.hash(password, 10);
 
       var generateOtp = async () => {
-        var generatedOtp = Math.random();
+        var generatedOtp = Math.floor(100000 + Math.random() * 900000);
         generatedOtp = generatedOtp * 1000000;
         generatedOtp = parseInt(generatedOtp);
         console.log(generatedOtp);
@@ -122,11 +123,11 @@ const userCtrl = {
         });
         await newPatient.save();
         id = newPatient._id;
-      } else {
-        const { nmc, availability, specialities } = req.body;
-        const nmc_email = await NMC.findOne(
-          { nmcNumber: nmc },
-          { _id: 0, email: 1 }
+      } else if (role == 1) {
+        const { nmc } = req.body;
+        const nmc_email = await hospitalModel.findOne(
+          { doctors: { nmc: nmc } },
+          { _id: 0, doctors: { email: 1 } }
         );
         if (email !== nmc_email)
           return res
@@ -135,11 +136,14 @@ const userCtrl = {
         const newDoctor = new Doctor({
           user_id: newUser._id,
           nmc,
-          availability,
-          specialities,
         });
         await newDoctor.save();
         id = newDoctor._id;
+      } else {
+        const newLabTechnician = new labTechnicianModel({
+          user_id: newUser._id,
+        });
+        await newLabTechnician.save();
       }
       const accessToken = createAccessToken({
         userId: newUser._id,
@@ -172,8 +176,13 @@ const userCtrl = {
       let id;
       if (role == 0) {
         id = await Patient.findOne({ user_id: user._id }, { _id: 1 });
-      } else {
+      } else if (role == 1) {
         id = await Doctor.findOne({ user_id: user._id }, { _id: 1 });
+      } else {
+        id = await labTechnicianModel.findOne(
+          { user_id: user._id },
+          { _id: 1 }
+        );
       }
 
       //Login success so creating web tokens
