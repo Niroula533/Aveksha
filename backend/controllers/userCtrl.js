@@ -5,6 +5,9 @@ const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+// import { StreamChat } from "stream-chat";
+
+const StreamChat = require("stream-chat");
 require("dotenv").config();
 
 const userCtrl = {
@@ -52,7 +55,7 @@ const userCtrl = {
       const encryptedPass = await bcrypt.hash(password, 10);
 
       var generateOtp = async () => {
-        var generatedOtp = Math.random();
+        var generatedOtp = Math.floor(100000 + Math.random() * 900000);
         generatedOtp = generatedOtp * 1000000;
         generatedOtp = parseInt(generatedOtp);
         console.log(generatedOtp);
@@ -194,6 +197,53 @@ const userCtrl = {
         role: user.role,
       });
     } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  newmessage: async (req, res) => {
+    try {
+      const { accessToken, refreshToken } = req.body;
+      const user = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN,
+        (err, decoded) => {
+          if (err) throw err;
+          return decoded;
+        }
+      );
+
+      // Define values.
+      const api_key = "c3w2yp5bh56b";
+      const api_secret =
+        "97xrfm5seh8rcw5vgbnwxd2bnz6uy68urajpap3etzvkthabuug55fnzy7xfg6gs";
+      const user_id = user.userId;
+
+      // Initialize a Server Client
+      const serverClient = StreamChat.getInstance(api_key, api_secret);
+      // Create User Token
+      const token = serverClient.createToken(user_id);
+
+      // client-side you initialize the Chat client with your API key
+      const chatClient = StreamChat.getInstance("c3w2yp5bh56b", {
+        timeout: 6000,
+      });
+
+      await chatClient.connectUser(
+        {
+          id: user._id,
+          name: user.firstName,
+          image: user.image,
+        },
+        token
+      );
+
+      res.json({
+        id: user._id,
+        name: user.firstName,
+        token: token,
+      });
+    } catch (error) {
       return res.status(500).json({ msg: err.message });
     }
   },
