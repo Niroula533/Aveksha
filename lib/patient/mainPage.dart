@@ -18,8 +18,17 @@ class _PatientMainPageState extends State<PatientMainPage> {
     });
   }
 
-  List pages = [
-    PatientHome(),
+  goToLogin() {
+    return Navigator.of(context)
+        .pushNamedAndRemoveUntil('/login', (Route<dynamic>route) => false);
+  }
+
+  
+
+  @override
+  Widget build(BuildContext context) {
+    List pages = [
+    PatientHome(logout: goToLogin),
     Center(
       child: Text("Search"),
     ),
@@ -30,9 +39,6 @@ class _PatientMainPageState extends State<PatientMainPage> {
       child: Text("MedFeed"),
     )
   ];
-
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         body: pages[_currentIndex],

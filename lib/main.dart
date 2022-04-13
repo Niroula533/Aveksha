@@ -2,16 +2,87 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'patientRegistrationPage.dart';
-import 'doctorRegistrationPage.dart';
+import 'package:get/get.dart';
+import 'controllers/userControl.dart';
 import 'routeGenerator.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'
+    hide Options;
+import 'package:dio/dio.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Get.put(UserInfo());
+  final storage = FlutterSecureStorage();
+  var role = await storage.read(key: 'role');
+  var accessToken = await storage.read(key: 'accessToken');
+  var initialRoute;
+  if (role != null && accessToken != null) {
+    var refreshToken = await storage.read(key: 'refreshToken');
+    var response = await Dio().post(
+      'http://10.0.2.2:3000/user',
+      data: {'accessToken': accessToken, 'refreshToken': refreshToken},
+      options: Options(validateStatus: ((status) {
+        return status! < 500;
+      })),
+    );
+    print(response.data);
+
+    if (response.data['user']) {
+      var user = response.data['user']['user'];
+      var roledUser = response.data['user']['roledUser'];
+      if (response.data['accessToken']) {
+        await storage.write(
+            key: 'accessToken', value: response.data['accessToken']);
+      }
+      if (role == '0') {
+        Get.find<UserInfo>().updateInfo(
+            firstName: user['firstName'],
+            lastName: user['lastName'],
+            email: user['email'],
+            phone: user['contact'],
+            role: user['role'],
+            address: user['address'],
+            dob: roledUser['pickedDate'],
+            gender: roledUser['gender']);
+        initialRoute = '/patientMain';
+      } else if (role == '1') {
+        Get.find<UserInfo>().updateInfo(
+          firstName: user['firstName'],
+          lastName: user['lastName'],
+          email: user['email'],
+          phone: user['contact'],
+          role: user['role'],
+          address: user['address'],
+          nmc: roledUser['nmc'],
+        );
+        // return '/doctorMain';
+        initialRoute = '/patientMain';
+      } else if (role == '2') {
+        Get.find<UserInfo>().updateInfo(
+          firstName: user['firstName'],
+          lastName: user['lastName'],
+          email: user['email'],
+          phone: user['contact'],
+          role: user['role'],
+          address: user['address'],
+        );
+        // return '/labTechnicianMain';
+        initialRoute = '/patientMain';
+      }
+    }
+  } else {
+    initialRoute = '/login';
+  }
+
+  runApp(MyApp(
+    initialRoute: initialRoute,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final String initialRoute;
+  MyApp({Key? key, required this.initialRoute}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,84 +91,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/login',
+      initialRoute:
+          initialRoute, // NOTE TO WATCH: pass arguments to initial Route while logging in initially
       onGenerateRoute: RouteGenerator.generateRoute,
     );
-  }
-}
-
-class FirstPage extends StatefulWidget {
-  @override
-  State<FirstPage> createState() => _FirstPageState();
-}
-
-class _FirstPageState extends State<FirstPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Color.fromARGB(255, 255, 255, 255),
-            elevation: 0,
-            title: Container(
-                // child: Image.asset('image/aveksha_logo.png'),
-                margin: EdgeInsets.fromLTRB(20, 10, 0, 0),
-                child: Image.asset('images/aveksha_logo.png',
-                    height: 100, width: 200),
-                padding: EdgeInsets.all(5.0))),
-        body: Container(
-            decoration: BoxDecoration(
-                color: Color.fromARGB(255, 228, 234, 235),
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-            margin: EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                Container(
-                    margin: EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Text(
-                          'SELECT USER TYPE',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 25),
-                        )
-                      ],
-                    )),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pushNamed('/doctorRegistration');
-                  },
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(20, 40, 20, 40),
-                      height: 100,
-                      padding: EdgeInsets.all(15.0),
-                      decoration: BoxDecoration(
-                          color: Color.fromARGB(206, 214, 208, 208),
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      child: Center(
-                        child: Text('Health Professional',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 18)),
-                      )),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pushNamed('/patientRegistration');
-                  },
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(20, 40, 20, 40),
-                      height: 100,
-                      padding: EdgeInsets.all(15.0),
-                      decoration: BoxDecoration(
-                          color: Color.fromARGB(206, 214, 208, 208),
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      child: Center(
-                        child: Text('Common User',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 18)),
-                      )),
-                ),
-              ],
-            )));
   }
 }

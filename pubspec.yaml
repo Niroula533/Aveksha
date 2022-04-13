@@ -39,6 +39,8 @@ dependencies:
   pattern_formatter: ^2.0.0
   dio: ^4.0.6
   otp_text_field: ^1.1.2
+  flutter_secure_storage: ^4.2.1
+  get: ^4.6.1
 
 dev_dependencies:
   flutter_test:

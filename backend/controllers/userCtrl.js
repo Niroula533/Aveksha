@@ -8,20 +8,53 @@ const hospitalModel = require("../models/hospitalModel");
 const labTechnicianModel = require("../models/labTechnicianModel");
 require("dotenv").config();
 
+var generateOtp = async (email) => {
+  var generatedOtp = Math.floor(100000 + Math.random() * 900000);
+  generatedOtp = parseInt(generatedOtp);
+  console.log(generatedOtp);
+
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    service: "Gmail",
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASS,
+    },
+  });
+
+  var mailOptions = {
+    to: email,
+    subject: "Otp for registration is: ",
+    html:
+      "<h3>OTP for account verification is </h3>" +
+      `<h1 style='font-weight:bold;'> 
+      ${generatedOtp} 
+      </h1>`, // html body
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    console.log("Message sent: %s", info.messageId);
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  });
+  return generatedOtp;
+};
+
 const userCtrl = {
-  // home:async(req,res)=>
-  // {
-  //   var generateOtp = async () => {
-  //     var generatedOtp = Math.random();
-  //     generatedOtp = generatedOtp * 1000000;
-  //     generatedOtp = parseInt(generatedOtp);
-  //     console.log(generatedOtp);
-  //     return generatedOtp;
-  //   };
-
-  //   var otpp = generateOtp();
-
-  // },
+  otpUpdate: async (req, res) => {
+    try {
+      const { email } = req.body;
+      var otp = await generateOtp(email);
+      await User.findOneAndUpdate({ email }, { $set: { otp: otp } });
+      return res.json({ msg: "Otp updated successfully!" });
+    } catch (e) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
 
   otpCheck: async (req, res) => {
     try {
@@ -32,7 +65,7 @@ const userCtrl = {
         await User.updateOne({ email, otp }, { $set: { confirmed: true } });
         return res.status(200).json({ msg: "Account is verified" });
       } else {
-        return res.status(500).json({ msg: "error , invalid token code" });
+        return res.status(400).json({ msg: "error , invalid token code" });
       }
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -43,6 +76,7 @@ const userCtrl = {
     try {
       const { firstName, lastName, email, phone, password, role, address } =
         req.body;
+      console.log(req.body);
       const user = await User.findOne({ email });
       if (user) return res.status(400).json({ msg: "User already exists" });
       if (password.length < 8) {
@@ -52,16 +86,7 @@ const userCtrl = {
       }
       const encryptedPass = await bcrypt.hash(password, 10);
 
-      var generateOtp = async () => {
-        var generatedOtp = Math.floor(100000 + Math.random() * 900000);
-        generatedOtp = generatedOtp * 1000000;
-        generatedOtp = parseInt(generatedOtp);
-        console.log(generatedOtp);
-        return generatedOtp;
-      };
-      var otpp = generateOtp();
-
-      // otp = otpp;
+      var otpp = generateOtp(email);
 
       const newUser = new User({
         firstName,
@@ -74,52 +99,13 @@ const userCtrl = {
       });
       await newUser.save();
 
-      let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        service: "Gmail",
-        auth: {
-          user: process.env.EMAIL,
-          pass: process.env.PASS,
-        },
-      });
-
-      var mailOptions = {
-        to: req.body.email,
-        subject: "Otp for registration is: ",
-        html:
-          "<h3>OTP for account verification is </h3>" +
-          `<h1 style='font-weight:bold;'> 
-          ${await otpp} 
-          </h1>`, // html body
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return console.log(error);
-        }
-        console.log("Message sent: %s", info.messageId);
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-
-        res.render("otp");
-      });
-      const { otp } = req.body;
-      console.log(otpp);
-      if (req.body.otp !== otp)
-        return res.status(400).json({ msg: "Invalid Otp code" });
-      else {
-        console.log("correct otp");
-
-        // confirmed = 1;
-      }
-
       let id;
       if (role == 0) {
-        const { DOB } = req.body;
+        const { DOB, gender } = req.body;
         const newPatient = new Patient({
           user_id: newUser._id,
           DOB,
+          gender,
         });
         await newPatient.save();
         id = newPatient._id;
@@ -144,6 +130,7 @@ const userCtrl = {
           user_id: newUser._id,
         });
         await newLabTechnician.save();
+        id = newLabTechnician._id;
       }
       const accessToken = createAccessToken({
         userId: newUser._id,
@@ -156,9 +143,9 @@ const userCtrl = {
         id: id,
       });
 
-      res.json({
-        accessToken,
-        refreshToken,
+      return res.json({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
         msg: "Registered successfully!",
       });
     } catch (err) {
@@ -173,34 +160,80 @@ const userCtrl = {
       if (!(await bcrypt.compare(password, user.password))) {
         return res.status(400).json({ msg: "Wrong password!" });
       }
-      let id;
-      if (role == 0) {
-        id = await Patient.findOne({ user_id: user._id }, { _id: 1 });
-      } else if (role == 1) {
-        id = await Doctor.findOne({ user_id: user._id }, { _id: 1 });
+      let roledUser;
+      if (user.role == 0) {
+        roledUser = await Patient.findOne({ user_id: user._id });
+      } else if (user.role == 1) {
+        roledUser = await Doctor.findOne({ user_id: user._id });
       } else {
-        id = await labTechnicianModel.findOne(
-          { user_id: user._id },
-          { _id: 1 }
-        );
+        roledUser = await labTechnicianModel.findOne({ user_id: user._id });
       }
-
+      const finalUser = {
+        user,
+        roledUser,
+      };
+      console.log(finalUser);
       //Login success so creating web tokens
       const accesstoken = createAccessToken({
         userId: user._id,
         role: user.role,
-        id: id,
+        id: roledUser._id,
       });
       const refreshtoken = createRefreshToken({
         userId: user._id,
         role: user.role,
-        id: id,
+        id: roledUser._id,
       });
 
-      res.json({
-        accesstoken: accesstoken,
-        refreshtoken: refreshtoken,
-        role: user.role,
+      return res.json({
+        user: finalUser,
+        accessToken: accesstoken,
+        refreshToken: refreshtoken,
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getUser: async (req, res) => {
+    try {
+      console.log('yes');
+      const { accessToken, refreshToken } = req.body;
+      const gotUser = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN,
+        (err, decoded) => {
+          if (err) {
+            const decod = jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
+              if (err) return res.status(400).json({ msg: "Invalid authentication" });
+              const accesstoken = createAccessToken(user);
+              return {...user,accesstoken};
+            });
+            return decod;
+          }
+          return decoded;
+        }
+      );
+      const user = await User.findOne({ _id: gotUser.userId });
+      let roledUser;
+      if (user.role == 0) {
+        roledUser = await Patient.findOne({ user_id: gotUser.id });
+      } else if (user.role == 1) {
+        roledUser = await Doctor.findOne({ user_id: gotUser.id });
+      } else {
+        roledUser = await labTechnicianModel.findOne({ user_id: gotUser.id });
+      }
+      const finalUser = {
+        user,
+        roledUser,
+      };
+      if(gotUser.accesstoken){
+        return res.json({
+          user: finalUser,
+          accessToken: gotUser.accesstoken
+        });
+      }
+      return res.json({
+        user: finalUser,
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });

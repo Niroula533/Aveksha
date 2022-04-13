@@ -2,6 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'apis/register.dart';
 
 class DoctorRegistrationPage extends StatefulWidget {
   const DoctorRegistrationPage({Key? key}) : super(key: key);
@@ -13,18 +16,30 @@ class DoctorRegistrationPage extends StatefulWidget {
 class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
   final TextEditingController _pass = TextEditingController();
   final TextEditingController _confirmPass = TextEditingController();
-
+  final TextEditingController _nmc = TextEditingController();
+  final TextEditingController _fullName = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _address = TextEditingController();
+  final TextEditingController _contact = TextEditingController();
+  
   @override
   void dispose() {
     _pass.dispose();
     _confirmPass.dispose();
+    _nmc.dispose();
+    _fullName.dispose();
+    _email.dispose();
+    _address.dispose();
+    _contact.dispose();
     super.dispose();
   }
 
-  Widget InputBox(text) {
+  final storage = FlutterSecureStorage();
+  Widget InputBox(text, textController) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: TextFormField(
+        controller: textController,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Field is Empty';
@@ -52,7 +67,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
             elevation: 0,
             title: GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed('/registration');
+                Navigator.of(context).pushNamed('/login');
               },
               child: Container(
                   // child: Image.asset('image/aveksha_logo.png'),
@@ -88,8 +103,8 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          InputBox('Full Name'),
-                          InputBox('Email'),
+                          InputBox('Full Name',_fullName),
+                          InputBox('Email',_email),
                           // for checking password
                           Padding(
                             padding: const EdgeInsets.all(20),
@@ -135,6 +150,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: TextFormField(
+                              controller: _nmc,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                     RegExp(r'[0-9]'))
@@ -155,11 +171,11 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                               ),
                             ),
                           ),
-                          InputBox('Address'),
-                          InputBox('Gender'),
+                          InputBox('Address',_address),
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: TextFormField(
+                              controller: _contact,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                     RegExp(r'[0-9]'))
@@ -183,9 +199,39 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                           ),
                           
                           GestureDetector(
-                            onTap: () => {
-                              if (_formKey.currentState!.validate())
-                                {Navigator.of(context).pushNamed('/login')}
+                            onTap: () async{
+                              if (_formKey.currentState!.validate()) {
+                                var h = await handleRegister(
+                                    fullName: _fullName.text,
+                                    context: context,
+                                    email: _email.text,
+                                    contact: _contact.text,
+                                    pass: _pass.text,
+                                    address: _address.text,
+                                    nmc: _nmc.text,
+                                    role: 1);
+                                return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title:
+                                            Text("Registration unsuccessfull!"),
+                                        content: Text(h),
+                                        actions: <Widget>[
+                                          TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: Text("Retry")),
+                                          TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pushNamed('/login'),
+                                              child: Text("LogIn"))
+                                        ],
+                                      );
+                                    });
+                                // Navigator.of(context).pushNamed('/otp');
+                              }
                             },
                             child: Container(
                                 margin: EdgeInsets.fromLTRB(20, 20, 20, 20),

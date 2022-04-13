@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_final_fields
 
-import 'package:aveksha/patientRegistrationPage.dart';
-import 'package:aveksha/doctorRegistrationPage.dart';
+import 'package:aveksha/apis/login.dart';
 import 'package:flutter/material.dart';
-import 'package:aveksha/main.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,6 +12,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formkey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _pass = TextEditingController();
   bool _viewpw = true;
 
   @override
@@ -59,6 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                         Padding(
                           padding: const EdgeInsets.all(20),
                           child: TextFormField(
+                            controller: _email,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Field is Empty';
@@ -77,6 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                         Padding(
                           padding: const EdgeInsets.all(20),
                           child: TextFormField(
+                            controller: _pass,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Field is Empty';
@@ -103,10 +105,21 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => {
+                          onTap: () async {
                             // after login route here
-                            if (_formkey.currentState!.validate())
-                              {Navigator.of(context).pushNamed('/login')}
+                            if (_formkey.currentState!.validate()) {
+                              await handleLogin(
+                                  context: context,
+                                  email: _email.text,
+                                  password: _pass.text);
+                              // if (h.toString() == 'h') {
+                              //   Navigator.of(context)
+                              //       .popAndPushNamed('/patientMain');
+                              // }
+                              // Navigator.of(context).pushNamedAndRemoveUntil(
+                              //     '/patientMain',
+                              //     (Route<dynamic> route) => false);
+                            }
                           },
                           child: Container(
                               margin: EdgeInsets.fromLTRB(20, 20, 20, 20),

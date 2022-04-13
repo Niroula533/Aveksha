@@ -4,9 +4,8 @@ import 'package:otp_text_field/style.dart';
 import 'package:dio/dio.dart';
 
 class OtpPage extends StatefulWidget {
-  // final String email;
-  // OtpPage({Key? key, required this.email}) : super(key: key);
-  OtpPage({Key? key}) : super(key: key);
+  final String email;
+  OtpPage({Key? key, required this.email}) : super(key: key);
 
   @override
   State<OtpPage> createState() => _OtpPageState();
@@ -35,16 +34,18 @@ class _OtpPageState extends State<OtpPage> {
         child: OTPTextField(
           length: 6,
           width: MediaQuery.of(context).size.width,
-          fieldWidth: 80,
-          style: TextStyle(fontSize: 17),
+          fieldWidth: 50,
+          style: TextStyle(fontSize: 15),
           textFieldAlignment: MainAxisAlignment.spaceAround,
           fieldStyle: FieldStyle.underline,
           onCompleted: (pin) async {
-            // var response = await Dio().post('http://localhost:5000/otpcheck',
-            // data: {'otp': pin, 'email': widget.email});
-            // if (response.data['msg'] == "Account is verified") {
-            Navigator.of(context).pushNamed('/patientMain');
-            // }
+            var response = await Dio().post(
+                'http://10.0.2.2:3000/user/otpcheck',
+                data: {'otp': pin, 'email': widget.email});
+            if (response.data['msg'] == "Account is verified") {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/patientMain', (Route<dynamic> route) => false);
+            }
           },
         ),
       ),

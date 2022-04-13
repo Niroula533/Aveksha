@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
 import 'package:intl/intl.dart';
-import 'package:dio/dio.dart';
+import './apis/register.dart';
 
 class PatientRegistrationPage extends StatefulWidget {
   const PatientRegistrationPage({Key? key}) : super(key: key);
@@ -29,25 +29,12 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
     _pass.dispose();
     _confirmPass.dispose();
     _pickedDate.dispose();
+    _fullName.dispose();
+    _email.dispose();
+    _address.dispose();
+    _contact.dispose();
     super.dispose();
   }
-
-  // Widget PickDate() {
-  //   return ElevatedButton(
-  //       child: Icon(Icons.calendar_today),
-  //       onPressed: () {
-  //         showDatePicker(
-  //                 context: context,
-  //                 initialDate: DateTime.now(),
-  //                 firstDate: DateTime(2001),
-  //                 lastDate: DateTime(2024))
-  //             .then((date) {
-  //           setState(() {
-  //             _dateTime = date;
-  //           });
-  //         });
-  //       });
-  // }
 
   Widget InputBox(text, textController) {
     return Padding(
@@ -70,29 +57,39 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
     );
   }
 
-  Future<dynamic> handleRegister(BuildContext context, email) async {
-    try {
-      List<String> name = _fullName.text.split(' ');
-      var response = await Dio().post('http://localhost:5000/register', data: {
-        'firstName': name[0],
-        'lastName': name[1],
-        'email': _email.text,
-        'phone': _contact.text,
-        'password': _pass.text,
-        'role': 0,
-        'address': _address
-      });
+  // Future<dynamic> handleRegister() async {
+  //   try {
+  //     List<String> name = _fullName.text.split(' ');
+  //     var response =
+  //         await Dio().post('http://10.0.2.2:3000/user/register', data: {
+  //       'firstName': name[0],
+  //       'lastName': name[1],
+  //       'email': _email.text,
+  //       'phone': _contact.text,
+  //       'password': _pass.text,
+  //       'role': 0,
+  //       'address': _address.text,
+  //       'DOB': _pickedDate.text
+  //     }, options: Options(
+  //       validateStatus: (status) {
+  //         return num.parse(status.toString()).toInt() < 500;
+  //       },
+  //     ));
 
-      if (response.data['msg'] == 'Registered successfully!') {
-        Navigator.of(context).pushNamed('/otp', arguments: email);
-      } else {
-        return response.data;
-      }
-    } catch (e) {
-      print(e);
-      return e.toString();
-    }
-  }
+  //     if (response.data['msg'] == 'Registered successfully!') {
+  //       await storage.write(
+  //           key: "accessToken", value: response.data["accessToken"]);
+  //       await storage.write(
+  //           key: "refreshToken", value: response.data["refreshToken"]);
+  //       Navigator.of(context).pushNamed('/otp', arguments: _email.text);
+  //     } else {
+  //       return response.data["msg"];
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     return e.toString();
+  //   }
+  // }
 
   final _formKey = GlobalKey<FormState>();
   @override
@@ -105,7 +102,7 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
             elevation: 0,
             title: GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed('/registration');
+                Navigator.of(context).pushNamed('/login');
               },
               child: Container(
                   // child: Image.asset('image/aveksha_logo.png'),
@@ -232,7 +229,7 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                             value: _gender,
                             items: _genderList.map((gender) {
                               return DropdownMenuItem(
-                                child: new Text(gender),
+                                child: Text(gender),
                                 value: gender,
                               );
                             }).toList(),
@@ -247,6 +244,7 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: TextFormField(
+                              controller: _contact,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                     RegExp(r'[0-9]'))
@@ -271,26 +269,38 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                             onTap: () async {
                               //funtion to go to login here
                               if (_formKey.currentState!.validate()) {
-                                // var h =
-                                //     await handleRegister(context, _email.text);
-                                // if (h == '') {
-                                //   var popup = AlertDialog(
-                                //     title: Text('Registration unsucessfull!'),
-                                //     content: Text(h['msg']),
-                                //     actions: <Widget>[
-                                //       TextButton(
-                                //         child: Text('okay'),
-                                //         onPressed: () {
-                                //           Navigator.of(context).pop();
-                                //         },
-                                //       )
-                                //     ],
-                                //   );
+                                await handleRegister(
+                                    fullName: _fullName.text,
+                                    context: context,
+                                    email: _email.text,
+                                    contact: _contact.text,
+                                    pass: _pass.text,
+                                    address: _address.text,
+                                    pickedDate: _pickedDate.text,
+                                    role: 0,
+                                    gender: _gender);
+                                // if (h != '') {
                                 //   return showDialog(
                                 //       context: context,
-                                //       builder: (BuildContext) => popup);
+                                //       builder: (context) {
+                                //         return AlertDialog(
+                                //           title: Text(
+                                //               "Registration unsuccessfull!"),
+                                //           content: Text(h),
+                                //           actions: <Widget>[
+                                //             TextButton(
+                                //                 onPressed: () =>
+                                //                     Navigator.of(context).pop(),
+                                //                 child: Text("Retry")),
+                                //             TextButton(
+                                //                 onPressed: () =>
+                                //                     Navigator.of(context)
+                                //                         .pushNamed('/login'),
+                                //                 child: Text("LogIn"))
+                                //           ],
+                                //         );
+                                //       });
                                 // }
-                                Navigator.of(context).pushNamed('/otp');
                               }
                             },
                             child: Container(

@@ -2,12 +2,16 @@ const mongoose = require("mongoose");
 const Patient = new mongoose.Schema({
   user_id: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref:"User",
+    ref: "User",
   },
   DOB: {
-    type: Number,
+    type: String,
     required: true,
   },
+  gender:{
+    type: String,
+    required: true,
+  }
 });
 
 module.exports = mongoose.model("Patient", Patient);

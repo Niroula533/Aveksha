@@ -1,10 +1,14 @@
+import 'package:aveksha/loginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import './components/tab_component.dart';
 import 'components/med_component.dart';
 
 class PatientHome extends StatefulWidget {
-  PatientHome({Key? key}) : super(key: key);
+  final Function logout;
+  PatientHome({Key? key, required this.logout}) : super(key: key);
 
   @override
   State<PatientHome> createState() => _PatientHomeState();
@@ -222,12 +226,22 @@ class _PatientHomeState extends State<PatientHome> {
         });
   }
 
-  List<PopupMenuItem> menuItems = [
-    PopupMenuItem(child: Text("Edit Profile")),
-    PopupMenuItem(child: Text("Sign Out"))
-  ];
   @override
   Widget build(BuildContext context) {
+    List<PopupMenuItem> menuItems = [
+      PopupMenuItem(child: Text("Edit Profile")),
+      PopupMenuItem(
+          child: TextButton(
+        child: Text("Sign Out"),
+        onPressed: () async {
+          final storage = FlutterSecureStorage();
+          await storage.deleteAll();
+          // Navigator.of(context).pushReplacementNamed('/login');
+          await widget.logout();
+        },
+      ))
+    ];
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Stack(
