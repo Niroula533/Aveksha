@@ -196,7 +196,6 @@ const userCtrl = {
   },
   getUser: async (req, res) => {
     try {
-      console.log('yes');
       const { accessToken, refreshToken } = req.body;
       const gotUser = jwt.verify(
         accessToken,
@@ -216,11 +215,11 @@ const userCtrl = {
       const user = await User.findOne({ _id: gotUser.userId });
       let roledUser;
       if (user.role == 0) {
-        roledUser = await Patient.findOne({ user_id: gotUser.id });
+        roledUser = await Patient.findOne({ user_id: gotUser.userId });
       } else if (user.role == 1) {
-        roledUser = await Doctor.findOne({ user_id: gotUser.id });
+        roledUser = await Doctor.findOne({ user_id: gotUser.userId });
       } else {
-        roledUser = await labTechnicianModel.findOne({ user_id: gotUser.id });
+        roledUser = await labTechnicianModel.findOne({ user_id: gotUser.userId });
       }
       const finalUser = {
         user,

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class TabComponent extends StatelessWidget {
   final String name;
-  const TabComponent({Key? key, required this.name}) : super(key: key);
+  bool isActive;
+  TabComponent({Key? key, required this.name, required this.isActive}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class TabComponent extends StatelessWidget {
         padding: const EdgeInsets.all(5),
         height: MediaQuery.of(context).size.height * 0.06,
         width: MediaQuery.of(context).size.width * 0.25,
-        color: Color(0xFFFF667E),
+        color: isActive? Color(0xFFFF667E): Colors.white,
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
@@ -20,11 +21,7 @@ class TabComponent extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
-              // color: Colors.white,
-              foreground: Paint()
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 0.8
-                ..color = Colors.white,
+              color: isActive?Colors.white : Color(0xFF1EA3EA),
             ),
           ),
         ),

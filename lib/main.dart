@@ -15,6 +15,7 @@ void main() async {
   final storage = FlutterSecureStorage();
   var role = await storage.read(key: 'role');
   var accessToken = await storage.read(key: 'accessToken');
+  var roledUser;
   var initialRoute;
   if (role != null && accessToken != null) {
     var refreshToken = await storage.read(key: 'refreshToken');
@@ -27,10 +28,10 @@ void main() async {
     );
     print(response.data);
 
-    if (response.data['user']) {
+    if (response.data['user'] != null) {
       var user = response.data['user']['user'];
-      var roledUser = response.data['user']['roledUser'];
-      if (response.data['accessToken']) {
+      roledUser = response.data['user']['roledUser'];
+      if (response.data['accessToken'] != null) {
         await storage.write(
             key: 'accessToken', value: response.data['accessToken']);
       }
@@ -42,7 +43,7 @@ void main() async {
             phone: user['contact'],
             role: user['role'],
             address: user['address'],
-            dob: roledUser['pickedDate'],
+            dob: roledUser['DOB'],
             gender: roledUser['gender']);
         initialRoute = '/patientMain';
       } else if (role == '1') {
@@ -72,6 +73,7 @@ void main() async {
     }
   } else {
     initialRoute = '/login';
+    // initialRoute = '/patientMain';
   }
 
   runApp(MyApp(
