@@ -279,28 +279,6 @@ class _PatientRegistrationPageState extends State<PatientRegistrationPage> {
                                     pickedDate: _pickedDate.text,
                                     role: 0,
                                     gender: _gender);
-                                // if (h != '') {
-                                //   return showDialog(
-                                //       context: context,
-                                //       builder: (context) {
-                                //         return AlertDialog(
-                                //           title: Text(
-                                //               "Registration unsuccessfull!"),
-                                //           content: Text(h),
-                                //           actions: <Widget>[
-                                //             TextButton(
-                                //                 onPressed: () =>
-                                //                     Navigator.of(context).pop(),
-                                //                 child: Text("Retry")),
-                                //             TextButton(
-                                //                 onPressed: () =>
-                                //                     Navigator.of(context)
-                                //                         .pushNamed('/login'),
-                                //                 child: Text("LogIn"))
-                                //           ],
-                                //         );
-                                //       });
-                                // }
                               }
                             },
                             child: Container(

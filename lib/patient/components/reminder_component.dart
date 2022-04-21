@@ -1,21 +1,24 @@
+import 'dart:convert';
 import 'dart:ui';
-
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
+import '../../models/medicine_model.dart';
 
 Future<void> addReminder(
   BuildContext context,
   Function updateAllMedicine,
 ) async {
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   var _textEditingController = TextEditingController();
   var _timesPerDayController = TextEditingController(text: '1');
-  var _startTimeHourController = TextEditingController(text: '00');
-  var _startTimeMinuteController = TextEditingController(text: '00');
   var _dosageController = TextEditingController();
-  var _scrollController = ScrollController();
-  
+  var _dateTime = DateTime.now();
+
   return await showDialog(
       context: context,
       builder: (context) {
@@ -36,18 +39,22 @@ Future<void> addReminder(
                     TextFormField(
                       controller: _textEditingController,
                       validator: (value) {
-                        return value!.isEmpty ? null : "Required";
+                        print(value);
+                        return value!.isEmpty ? "Required" : null;
                       },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Enter Medicine',
                       ),
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     TextFormField(
                       controller: _dosageController,
-                      validator: (value) {
-                        return value!.isEmpty ? null : "Required";
-                      },
+                      // validator: (value) {
+                      //   return value!.isEmpty ? null : "Required";
+                      // },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Enter dose (optional)',
@@ -80,10 +87,10 @@ Future<void> addReminder(
                           Expanded(
                             child: TextFormField(
                               controller: _timesPerDayController,
-                              validator: (v) =>
-                                  num.tryParse(v.toString()) == null
-                                      ? "Invalid Field"
-                                      : null,
+                              // validator: (v) =>
+                              //     num.tryParse(v.toString()) == null
+                              //         ? "Invalid Field"
+                              //         : null,
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
                                 FilteringTextInputFormatter.allow(
@@ -114,52 +121,17 @@ Future<void> addReminder(
                       "Set time for the starting dose",
                       style: TextStyle(color: Color(0xFF1EA3EA)),
                     ),
-                    Center(
-                      child: Row(
-                        children: [
-                          SingleChildScrollView(
-                            controller: _scrollController,
-                            scrollDirection: Axis.vertical,
-                            child: Column(
-                              children: [
-                                Text('1'),
-                                Text('1'),
-                                Text('1'),
-                              ],
-                            ),
-                          ),
-                          Expanded(child: Text(" : ")),
-                          Expanded(
-                              child: TextFormField(
-                            controller: _startTimeMinuteController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                            ],
-                            onChanged: (value) {
-                              if (value.isEmpty) {
-                                _startTimeMinuteController.value =
-                                    TextEditingValue(
-                                  text: 00.toString(),
-                                  selection: TextSelection.fromPosition(
-                                    TextPosition(offset: 2),
-                                  ),
-                                );
-                              } else if (num.parse(value.toString()) > 59) {
-                                _startTimeMinuteController.value =
-                                    TextEditingValue(
-                                  text: 59.toString(),
-                                  selection: TextSelection.fromPosition(
-                                    TextPosition(offset: 2),
-                                  ),
-                                );
-                              }
-                            },
-                          )),
-                        ],
-                      ),
-                    ),
+                    SizedBox(
+                      height: 80,
+                      child: CupertinoDatePicker(
+                          initialDateTime: _dateTime,
+                          mode: CupertinoDatePickerMode.time,
+                          onDateTimeChanged: (dateTime) {
+                            setState(() {
+                              _dateTime = dateTime;
+                            });
+                          }),
+                    )
                   ],
                 ),
               ),
@@ -170,17 +142,36 @@ Future<void> addReminder(
                     },
                     child: Text("Cancel")),
                 TextButton(
-                    onPressed: () {
-                      if (!formKey.currentState!.validate()) {
-                        updateAllMedicine(
-                            _textEditingController.text,
-                            _dosageController.text,
-                            num.parse(_timesPerDayController.text).toInt(),
-                            num.parse(_startTimeHourController.text).toInt(),
-                            num.parse(_startTimeMinuteController.text).toInt());
+                    onPressed: () async {
+                      int timesPerDay =
+                          num.parse(_timesPerDayController.text).toInt();
+
+                      if (formKey.currentState!.validate()) {
+                        int interval = (24 / timesPerDay).truncate();
+                        var tempTime = _dateTime;
+                        List<DateTime> sortedTime =
+                            List.generate(timesPerDay, (index) {
+                          var t =
+                              tempTime.add(Duration(hours: index * interval));
+                          return t;
+                        });
+                        sortedTime.sort(((a, b) => a.hour.compareTo(b.hour)));
+                        List<DoseTime> doseTime =
+                            List.generate(timesPerDay, ((index) {
+                          return DoseTime(0, DateFormat.Hm().format(sortedTime[index]));
+                        }));
+
+                        Meds med = Meds(_textEditingController.text,
+                            _dosageController.text, doseTime);
+                        var encodedMed = jsonEncode(med);
+                        updateAllMedicine(med);
                         Navigator.of(context).pop();
-                      } else {
-                        return null;
+                        var storage = FlutterSecureStorage();
+                        final accessToken =
+                            await storage.read(key: 'accessToken');
+                        var response = await Dio().post(
+                            'http://10.0.2.2:3000/user/reminder',
+                            data: {'reminder': encodedMed, 'accessToken': accessToken});
                       }
                     },
                     child: Text("Add")),

@@ -60,9 +60,16 @@ Future<dynamic> handleLogin(
         key: 'accessToken', value: response.data['accessToken']);
     await storage.write(
         key: 'refreshToken', value: response.data['refreshToken']);
-    Navigator.of(context).pushNamedAndRemoveUntil(
-        '/patientMain', (Route<dynamic> route) => false);
-    // Navigator.of(context).popAndPushNamed('/patientMain');
+    if (user['role'] == 0) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          '/patientMain', (Route<dynamic> route) => false);
+    } else if (user['role'] == 1) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          '/doctorMain', (Route<dynamic> route) => false);
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil('/doctorMain',
+          (Route<dynamic> route) => false); // NOTE: should be /labtechMain
+    }
     return '';
 
     // return showDialog(

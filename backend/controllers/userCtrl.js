@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const hospitalModel = require("../models/hospitalModel");
 const labTechnicianModel = require("../models/labTechnicianModel");
+const Reminder = require("../models/reminderModel");
 require("dotenv").config();
 
 var generateOtp = async (email) => {
@@ -76,7 +77,6 @@ const userCtrl = {
     try {
       const { firstName, lastName, email, phone, password, role, address } =
         req.body;
-      console.log(req.body);
       const user = await User.findOne({ email });
       if (user) return res.status(400).json({ msg: "User already exists" });
       if (password.length < 8) {
@@ -112,10 +112,18 @@ const userCtrl = {
       } else if (role == 1) {
         const { nmc } = req.body;
         const nmc_email = await hospitalModel.findOne(
-          { doctors: { nmc: nmc } },
-          { _id: 0, doctors: { email: 1 } }
+          {
+            doctors: { $elemMatch: { nmcNumber: nmc } },
+          },
+          { _id: 0, doctors: { $elemMatch: { nmcNumber: nmc } } }
         );
-        if (email !== nmc_email)
+        console.log(nmc_email.doctors[0]);
+        if (!nmc_email) {
+          return res.status(400).json({
+            msg: "No matching doctor found!",
+          });
+        }
+        if (email !== nmc_email.doctors[0].email)
           return res
             .status(400)
             .json({ msg: "NMC number and email does not match" });
@@ -126,6 +134,16 @@ const userCtrl = {
         await newDoctor.save();
         id = newDoctor._id;
       } else {
+        const labTechnician = await hospitalModel.findOne({
+          labTechnicians: { $elemMatch: { email: email } },
+        });
+
+        if (!labTechnician) {
+          return res.status(400).json({
+            msg: "No matching lab technician found!",
+          });
+        }
+
         const newLabTechnician = new labTechnicianModel({
           user_id: newUser._id,
         });
@@ -202,11 +220,18 @@ const userCtrl = {
         process.env.ACCESS_TOKEN,
         (err, decoded) => {
           if (err) {
-            const decod = jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
-              if (err) return res.status(400).json({ msg: "Invalid authentication" });
-              const accesstoken = createAccessToken(user);
-              return {...user,accesstoken};
-            });
+            const decod = jwt.verify(
+              refreshToken,
+              process.env.REFRESH_TOKEN,
+              (err, user) => {
+                if (err)
+                  return res
+                    .status(400)
+                    .json({ msg: "Invalid authentication" });
+                const accesstoken = createAccessToken(user);
+                return { ...user, accesstoken };
+              }
+            );
             return decod;
           }
           return decoded;
@@ -219,21 +244,82 @@ const userCtrl = {
       } else if (user.role == 1) {
         roledUser = await Doctor.findOne({ user_id: gotUser.userId });
       } else {
-        roledUser = await labTechnicianModel.findOne({ user_id: gotUser.userId });
+        roledUser = await labTechnicianModel.findOne({
+          user_id: gotUser.userId,
+        });
       }
       const finalUser = {
         user,
         roledUser,
       };
-      if(gotUser.accesstoken){
+      if (gotUser.accesstoken) {
         return res.json({
           user: finalUser,
-          accessToken: gotUser.accesstoken
+          accessToken: gotUser.accesstoken,
         });
       }
       return res.json({
         user: finalUser,
       });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  addReminder: async (req, res) => {
+    try {
+      const { reminder, accessToken } = req.body;
+      const user = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN,
+        (err, user) => {
+          if (err)
+            throw err;
+          return user;
+        }
+      );
+      const parsedReminder = JSON.parse(reminder);
+      const patient = await Patient.findOne({ user_id: user.userId });
+      var reminders = new Reminder({
+        patientId: patient._id,
+        name: parsedReminder.name,
+        dosage: parsedReminder.dosage,
+        doseTime: parsedReminder.doseTime,
+      });
+      await reminders.save();
+      return res.json({ msg: "Reminder added successfully!" });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getReminder: async (req, res) => {
+    try {
+      const { accessToken, refreshToken } = req.body;
+      const gotUser = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN,
+        (err, decoded) => {
+          if (err) {
+            const decod = jwt.verify(
+              refreshToken,
+              process.env.REFRESH_TOKEN,
+              (err, user) => {
+                if (err)
+                  return res
+                    .status(400)
+                    .json({ msg: "Invalid authentication" });
+                const accesstoken = createAccessToken(user);
+                return { ...user, accesstoken };
+              }
+            );
+            return decod;
+          }
+          return decoded;
+        }
+      );
+      const patient = await Patient.findOne({ user_id: gotUser.userId });
+      const reminders = await Reminder.find({ patientId: patient._id });
+      return res.json(reminders);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

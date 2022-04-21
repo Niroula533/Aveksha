@@ -4,6 +4,7 @@ import 'package:aveksha/doctorRegistrationPage.dart';
 import 'package:flutter/material.dart';
 import 'package:aveksha/firstPage.dart';
 import 'package:aveksha/loginPage.dart';
+import 'doctor/main_page.dart';
 import 'otpPage.dart';
 
 class RouteGenerator {
@@ -27,6 +28,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => OtpPage(email: emailForOTP));
       case '/patientMain':
         return MaterialPageRoute(builder: (_) => PatientMainPage());
+      case '/doctorMain':
+        return MaterialPageRoute(builder: (_) => DoctorMainPage());
       default:
         // If there is no such named route in the switch statement, e.g. /third
         return _errorRoute();

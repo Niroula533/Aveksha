@@ -35,9 +35,9 @@ class _PatientMainPageState extends State<PatientMainPage> {
     Center(
       child: Text("Message"),
     ),
-    Center(
-      child: Text("MedFeed"),
-    )
+    // Center(
+    //   child: Text("MedFeed"),
+    // )
   ];
     return MaterialApp(
       home: Scaffold(

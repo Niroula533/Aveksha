@@ -1,6 +1,9 @@
+import 'package:aveksha/apis/getReminders.dart';
 import 'package:aveksha/loginPage.dart';
+import 'package:aveksha/models/medicine_model.dart';
 import 'package:aveksha/patient/components/appointments.dart';
 import 'package:aveksha/patient/components/prevAppointment.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +12,8 @@ import 'package:get/get.dart';
 import './components/tab_component.dart';
 import 'components/med_component.dart';
 import 'components/reminder_component.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class PatientHome extends StatefulWidget {
   final Function logout;
@@ -19,8 +24,27 @@ class PatientHome extends StatefulWidget {
 }
 
 class _PatientHomeState extends State<PatientHome> {
+  List<Medicine> allMedicine = [];
+
+  @override
+  void initState() {
+    getReminder().then((reminders) {
+      setState(() {
+        allMedicine = reminders.map((v) {
+          List<DoseTime> dts = List.generate(v['doseTime'].length, (index) {
+            return DoseTime(
+                v['doseTime'][index]['isTaken'], v['doseTime'][index]['time']);
+          });
+          Meds med = Meds(v['name'], v['dosage'], dts);
+          return Medicine(med: med);
+        }).toList();
+      });
+    });
+
+    super.initState();
+  }
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<Widget> allMedicine = [];
   List<Widget> appointments = [
     DoctorAppointment(
         doctorName: 'A',
@@ -37,19 +61,10 @@ class _PatientHomeState extends State<PatientHome> {
     PrevDoctorAppointment(doctorName: 'A', speciality: 'Pediatrician')
   ];
 
-  updateAllMedicine(String name, String dosage, int timesPerDay, int startHour,
-      int startMinute) {
-    List<int> taken = List.generate(timesPerDay, (index) => 0);
-    List<int> hours =
-        List.generate(timesPerDay, (i) => (startHour * (i + 1)) % 24);
-    hours.sort();
+  updateAllMedicine(Meds med) {
     setState(() {
       allMedicine.add(Medicine(
-        name: name,
-        taken: taken,
-        dosage: dosage,
-        hours: hours,
-        minute: startMinute,
+        med: med,
       ));
     });
   }
@@ -166,15 +181,30 @@ class _PatientHomeState extends State<PatientHome> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
-                    child: TabComponent(name: "MED", isActive: medActive),
+                    child: TabComponent(
+                      name: "MED",
+                      isActive: medActive,
+                      heightRatio: 0.06,
+                      widthRatio: 0.25,
+                    ),
                     onTap: () => updateTab(0),
                   ),
                   GestureDetector(
-                    child: TabComponent(name: "EHR", isActive: ehrActive),
+                    child: TabComponent(
+                      name: "HR",
+                      isActive: ehrActive,
+                      heightRatio: 0.06,
+                      widthRatio: 0.25,
+                    ),
                     onTap: () => updateTab(1),
                   ),
                   GestureDetector(
-                    child: TabComponent(name: "DOC", isActive: docActive),
+                    child: TabComponent(
+                      name: "DOC",
+                      isActive: docActive,
+                      heightRatio: 0.06,
+                      widthRatio: 0.25,
+                    ),
                     onTap: () => updateTab(2),
                   ),
                 ],
@@ -198,7 +228,7 @@ class _PatientHomeState extends State<PatientHome> {
                         height:
                             200, // (250 - 50) where 50 units for other widgets
                         child: ListView(
-                            padding: EdgeInsets.symmetric(vertical: 2.0),
+                          padding: EdgeInsets.symmetric(vertical: 2.0),
                           shrinkWrap: true,
                           children: appointments,
                         )),

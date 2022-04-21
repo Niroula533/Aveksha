@@ -21,7 +21,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _address = TextEditingController();
   final TextEditingController _contact = TextEditingController();
-  
+
   @override
   void dispose() {
     _pass.dispose();
@@ -62,7 +62,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          automaticallyImplyLeading: false,
+            automaticallyImplyLeading: false,
             backgroundColor: Color.fromARGB(255, 255, 255, 255),
             elevation: 0,
             title: GestureDetector(
@@ -103,8 +103,8 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          InputBox('Full Name',_fullName),
-                          InputBox('Email',_email),
+                          InputBox('Full Name', _fullName),
+                          InputBox('Email', _email),
                           // for checking password
                           Padding(
                             padding: const EdgeInsets.all(20),
@@ -171,7 +171,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                               ),
                             ),
                           ),
-                          InputBox('Address',_address),
+                          InputBox('Address', _address),
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: TextFormField(
@@ -185,7 +185,7 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                                 if (value == null || value.isEmpty) {
                                   return 'Field is Empty';
                                 }
-                                
+
                                 return null;
                               },
                               obscureText: false,
@@ -197,40 +197,19 @@ class _DoctorRegistrationPageState extends State<DoctorRegistrationPage> {
                               ),
                             ),
                           ),
-                          
+
                           GestureDetector(
-                            onTap: () async{
+                            onTap: () async {
                               if (_formKey.currentState!.validate()) {
-                                var h = await handleRegister(
+                                await handleRegister(
                                     fullName: _fullName.text,
                                     context: context,
                                     email: _email.text,
                                     contact: _contact.text,
                                     pass: _pass.text,
                                     address: _address.text,
-                                    nmc: _nmc.text,
+                                    nmc: num.parse(_nmc.text),
                                     role: 1);
-                                return showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title:
-                                            Text("Registration unsuccessfull!"),
-                                        content: Text(h),
-                                        actions: <Widget>[
-                                          TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              child: Text("Retry")),
-                                          TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pushNamed('/login'),
-                                              child: Text("LogIn"))
-                                        ],
-                                      );
-                                    });
-                                // Navigator.of(context).pushNamed('/otp');
                               }
                             },
                             child: Container(

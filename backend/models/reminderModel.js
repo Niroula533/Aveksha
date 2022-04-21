@@ -10,23 +10,9 @@ const reminder = new mongoose.Schema({
     required: true,
   },
   dosage: Number,
-  startTime: {
-    hour: {
-      type: Number,
-    },
-    minute: {
-      type: Number,
-    },
-  },
-  times_a_day: {
-    type: Number,
-    required: true,
-  },
-  is_taken: {
-    type: Array,
-  },
   doseTime: [{
-    type:Object,
+    time: String,
+    isTaken: Number,
   }],
 });
 

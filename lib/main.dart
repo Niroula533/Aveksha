@@ -26,7 +26,6 @@ void main() async {
         return status! < 500;
       })),
     );
-    print(response.data);
 
     if (response.data['user'] != null) {
       var user = response.data['user']['user'];
@@ -56,8 +55,7 @@ void main() async {
           address: user['address'],
           nmc: roledUser['nmc'],
         );
-        // return '/doctorMain';
-        initialRoute = '/patientMain';
+        initialRoute = '/doctorMain';
       } else if (role == '2') {
         Get.find<UserInfo>().updateInfo(
           firstName: user['firstName'],

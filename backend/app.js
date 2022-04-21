@@ -5,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const userRoute = require("./routes/userRoute");
+const hospitalModel = require("./models/hospitalModel");
 
 const app = express();
 
@@ -30,6 +31,16 @@ mongoose.connect(URI, (err) => {
 app.get("/", (req, res) => {
   res.json({ msg: "Dashboard!" });
 });
+app.post('/hospital', async(req,res)=>{
+  const {labTechnicians, doctors, hospitalName} = req.body;
+  const hospital = new hospitalModel({
+    hospitalName: hospitalName,
+    labTechnicians: labTechnicians,
+    doctors: doctors
+  });
+  await hospital.save();
+  res.json(hospital)
+})
 
 app.use("/user", userRoute);
 

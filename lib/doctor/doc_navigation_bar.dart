@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NavBar extends StatefulWidget {
-  Function updateIndex;
+  final Function updateIndex;
   NavBar({required this.updateIndex});
 
   @override
@@ -30,11 +30,10 @@ class _NavigationBarState extends State<NavBar> {
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home),label: "", tooltip: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.search),label: "", tooltip: 'Search'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.messenger_rounded),label: "", tooltip: 'Message'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.quiz_rounded),label: "", tooltip: 'MedFeed'),
+                icon: Icon(Icons.quiz_rounded),label: "", tooltip: 'FeedBack'),
           ],
           onTap: (index) {
             widget.updateIndex(index);
