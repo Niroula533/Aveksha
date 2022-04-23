@@ -1,17 +1,18 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:aveksha/controllers/reminderControl.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../models/medicine_model.dart';
 
 Future<void> addReminder(
   BuildContext context,
-  Function updateAllMedicine,
 ) async {
   final formKey = GlobalKey<FormState>();
   var _textEditingController = TextEditingController();
@@ -158,20 +159,25 @@ Future<void> addReminder(
                         sortedTime.sort(((a, b) => a.hour.compareTo(b.hour)));
                         List<DoseTime> doseTime =
                             List.generate(timesPerDay, ((index) {
-                          return DoseTime(0, DateFormat.Hm().format(sortedTime[index]));
+                          return DoseTime(
+                              0, DateFormat.Hm().format(sortedTime[index]));
                         }));
 
                         Meds med = Meds(_textEditingController.text,
                             _dosageController.text, doseTime);
                         var encodedMed = jsonEncode(med);
-                        updateAllMedicine(med);
                         Navigator.of(context).pop();
                         var storage = FlutterSecureStorage();
                         final accessToken =
                             await storage.read(key: 'accessToken');
-                        var response = await Dio().post(
-                            'http://10.0.2.2:3000/user/reminder',
-                            data: {'reminder': encodedMed, 'accessToken': accessToken});
+                        var response = await Dio()
+                            .post('http://10.0.2.2:3000/user/reminder', data: {
+                          'reminder': encodedMed,
+                          'accessToken': accessToken
+                        });
+                        Get.find<AllReminders>()
+                            .addReminder(med: med, id: response.data['id']);
+                        Get.find<AllReminders>().refresh();
                       }
                     },
                     child: Text("Add")),

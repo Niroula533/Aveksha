@@ -190,7 +190,6 @@ const userCtrl = {
         user,
         roledUser,
       };
-      console.log(finalUser);
       //Login success so creating web tokens
       const accesstoken = createAccessToken({
         userId: user._id,
@@ -286,7 +285,7 @@ const userCtrl = {
         doseTime: parsedReminder.doseTime,
       });
       await reminders.save();
-      return res.json({ msg: "Reminder added successfully!" });
+      return res.json({ msg: "Reminder added successfully!",id: reminder._id });
     } catch (err) {
       console.log(err);
       return res.status(500).json({ msg: err.message });
@@ -324,6 +323,15 @@ const userCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  delReminder: async (req,res) =>{
+    try {
+      const{reminderId} = req.body;
+      await Reminder.findByIdAndDelete(reminderId);
+      return res.json({msg: "Reminder deleted successfully!"});
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  }
 };
 
 const createAccessToken = (user) => {

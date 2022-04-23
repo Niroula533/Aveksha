@@ -14,3 +14,9 @@ Future<List> getReminder() async {
     return [];
   }
 }
+
+Future<String> deleteReminder(id) async {
+  var response = await Dio()
+      .post('http://10.0.2.2:3000/user/delReminder', data: {'reminderId': id});
+  return response.data['msg'];
+}

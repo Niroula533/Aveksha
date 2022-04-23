@@ -1,4 +1,5 @@
-import 'package:aveksha/apis/getReminders.dart';
+import 'package:aveksha/apis/getNdeleteReminders.dart';
+import 'package:aveksha/controllers/reminderControl.dart';
 import 'package:aveksha/loginPage.dart';
 import 'package:aveksha/models/medicine_model.dart';
 import 'package:aveksha/patient/components/appointments.dart';
@@ -24,22 +25,28 @@ class PatientHome extends StatefulWidget {
 }
 
 class _PatientHomeState extends State<PatientHome> {
-  List<Medicine> allMedicine = [];
-
+  final allMedicine = Get.put(AllReminders());
+  bool play = false;
   @override
   void initState() {
-    getReminder().then((reminders) {
-      setState(() {
-        allMedicine = reminders.map((v) {
-          List<DoseTime> dts = List.generate(v['doseTime'].length, (index) {
-            return DoseTime(
-                v['doseTime'][index]['isTaken'], v['doseTime'][index]['time']);
-          });
-          Meds med = Meds(v['name'], v['dosage'], dts);
-          return Medicine(med: med);
-        }).toList();
-      });
-    });
+    // getReminder().then((reminders) {
+    //   setState(() {
+    //     allMedicine = reminders.map((v) {
+    //       List<DoseTime> dts = List.generate(v['doseTime'].length, (index) {
+    //         return DoseTime(
+    //             v['doseTime'][index]['isTaken'], v['doseTime'][index]['time']);
+    //       });
+    //       Meds med = Meds(v['name'], v['dosage'], dts);
+    //       return Medicine(
+    //           id: v['_id'],
+    //           med: med,
+    //           setPlay: setPlay,
+    //           getPlay: getPlay,
+    //           delReminder: delReminder);
+    //     }).toList();
+    //   });
+    // });
+    // Get.find<AllReminders>().getAllReminders();
 
     super.initState();
   }
@@ -61,13 +68,27 @@ class _PatientHomeState extends State<PatientHome> {
     PrevDoctorAppointment(doctorName: 'A', speciality: 'Pediatrician')
   ];
 
-  updateAllMedicine(Meds med) {
+  setPlay(bool playValue) {
     setState(() {
-      allMedicine.add(Medicine(
-        med: med,
-      ));
+      play = playValue;
     });
   }
+
+  getPlay() {
+    return play;
+  }
+
+  // updateAllMedicine(Meds med, id) {
+  //   setState(() {
+  //     allMedicine.add(Medicine(
+  //       id: id,
+  //       med: med,
+  //       setPlay: setPlay,
+  //       getPlay: getPlay,
+  //       delReminder: delReminder,
+  //     ));
+  //   });
+  // }
 
   bool medActive = true;
   bool ehrActive = false;
@@ -95,6 +116,18 @@ class _PatientHomeState extends State<PatientHome> {
     }
   }
 
+  // delReminder(id) {
+  //   setState(() {
+  //     allMedicine.removeWhere((element) => element.id == id);
+  //   });
+  //   deleteReminder(id).then((msg) {
+  //     final snack = SnackBar(
+  //       content: Text(msg),
+  //     );
+  //     ScaffoldMessenger.of(context).showSnackBar(snack);
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     List<PopupMenuItem> menuItems = [
@@ -113,154 +146,165 @@ class _PatientHomeState extends State<PatientHome> {
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    return Stack(
-      children: [
-        Container(
-          color: const Color(0xFFE1EBF1),
-          padding: EdgeInsets.symmetric(
-              vertical: height * 0.05, horizontal: width * 0.04),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          height: height * 0.095,
-                          width: height * 0.095,
-                          color: Colors.white.withOpacity(0.75),
-                        ),
-                      ),
-                      SizedBox(
-                        width: width * 0.05,
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "HELLO END",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 22,
-                                foreground: Paint()
-                                  ..style = PaintingStyle.stroke
-                                  ..strokeWidth = 1
-                                  ..color = Colors.black,
-                              ),
-                            ),
-                            Text("GOOD MORNING!"),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                  PopupMenuButton(itemBuilder: (context) => [...menuItems])
-                ],
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.04,
-              ),
-              // Column(
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   children: const [
-              //     Text("Sushant Adhikari, 21"),
-              //     Text("Dhulikhel, Kavre"),
-              //     Text("sushantadhikari2001@gmail.com"),
-              //     Text("+977 9815167761"),
-              //   ],
-              // ),
-              // SizedBox(
-              //   height: MediaQuery.of(context).size.height * 0.04,
-              // ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  GestureDetector(
-                    child: TabComponent(
-                      name: "MED",
-                      isActive: medActive,
-                      heightRatio: 0.06,
-                      widthRatio: 0.25,
-                    ),
-                    onTap: () => updateTab(0),
-                  ),
-                  GestureDetector(
-                    child: TabComponent(
-                      name: "HR",
-                      isActive: ehrActive,
-                      heightRatio: 0.06,
-                      widthRatio: 0.25,
-                    ),
-                    onTap: () => updateTab(1),
-                  ),
-                  GestureDetector(
-                    child: TabComponent(
-                      name: "DOC",
-                      isActive: docActive,
-                      heightRatio: 0.06,
-                      widthRatio: 0.25,
-                    ),
-                    onTap: () => updateTab(2),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: height * 0.06,
-              ),
-              if (medActive)
-                Expanded(
-                  child: ListView(
-                    children: allMedicine,
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                  ),
-                ),
-              if (docActive)
-                Column(
+    return GestureDetector(
+      child: Stack(
+        children: [
+          Container(
+            color: const Color(0xFFE1EBF1),
+            padding: EdgeInsets.symmetric(
+                vertical: height * 0.05, horizontal: width * 0.04),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Appontements'),
-                    SizedBox(
-                        height:
-                            200, // (250 - 50) where 50 units for other widgets
-                        child: ListView(
-                          padding: EdgeInsets.symmetric(vertical: 2.0),
-                          shrinkWrap: true,
-                          children: appointments,
-                        )),
-                    // ...appointments,
-                    Divider(),
-                    Text('Previous Interactions'),
-                    SizedBox(
-                        height:
-                            150, // (250 - 50) where 50 units for other widgets
-                        child: ListView(
+                    Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            height: height * 0.095,
+                            width: height * 0.095,
+                            color: Colors.white.withOpacity(0.75),
+                          ),
+                        ),
+                        SizedBox(
+                          width: width * 0.05,
+                        ),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "HELLO END",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 22,
+                                  foreground: Paint()
+                                    ..style = PaintingStyle.stroke
+                                    ..strokeWidth = 1
+                                    ..color = Colors.black,
+                                ),
+                              ),
+                              Text("GOOD MORNING!"),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    PopupMenuButton(itemBuilder: (context) => [...menuItems])
+                  ],
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.04,
+                ),
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.center,
+                //   children: const [
+                //     Text("Sushant Adhikari, 21"),
+                //     Text("Dhulikhel, Kavre"),
+                //     Text("sushantadhikari2001@gmail.com"),
+                //     Text("+977 9815167761"),
+                //   ],
+                // ),
+                // SizedBox(
+                //   height: MediaQuery.of(context).size.height * 0.04,
+                // ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      child: TabComponent(
+                        name: "MED",
+                        isActive: medActive,
+                        heightRatio: 0.06,
+                        widthRatio: 0.25,
+                      ),
+                      onTap: () => updateTab(0),
+                    ),
+                    GestureDetector(
+                      child: TabComponent(
+                        name: "HR",
+                        isActive: ehrActive,
+                        heightRatio: 0.06,
+                        widthRatio: 0.25,
+                      ),
+                      onTap: () => updateTab(1),
+                    ),
+                    GestureDetector(
+                      child: TabComponent(
+                        name: "DOC",
+                        isActive: docActive,
+                        heightRatio: 0.06,
+                        widthRatio: 0.25,
+                      ),
+                      onTap: () => updateTab(2),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: height * 0.06,
+                ),
+                if (medActive)
+                  Expanded(
+                    child: GetX<AllReminders>(builder: (controller) {
+                      return ListView.builder(
+                        itemCount: controller.allMedicine.length,
+                        itemBuilder: (context, index) {
+                          return controller.allMedicine[index];
+                        },
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                      );
+                    }),
+                  ),
+                if (docActive)
+                  Column(
+                    children: [
+                      Text('Appontements'),
+                      SizedBox(
+                          height:
+                              200, // (250 - 50) where 50 units for other widgets
+                          child: ListView(
                             padding: EdgeInsets.symmetric(vertical: 2.0),
                             shrinkWrap: true,
-                            children: prevAppointments)),
-                    // ...prevAppointments
-                  ],
-                )
-            ],
-          ),
-        ),
-        if (!docActive)
-          Positioned(
-            top: height * 0.775,
-            left: width * 0.85,
-            child: FloatingActionButton(
-              onPressed: () async {
-                await addReminder(context, updateAllMedicine);
-              },
-              backgroundColor: Color(0xFF60BBFE).withOpacity(0.75),
-              child: Icon(Icons.add, color: Colors.white, size: 32),
+                            children: appointments,
+                          )),
+                      // ...appointments,
+                      Divider(),
+                      Text('Previous Interactions'),
+                      SizedBox(
+                          height:
+                              150, // (250 - 50) where 50 units for other widgets
+                          child: ListView(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                              shrinkWrap: true,
+                              children: prevAppointments)),
+                      // ...prevAppointments
+                    ],
+                  )
+              ],
             ),
-          )
-      ],
+          ),
+          if (!docActive)
+            Positioned(
+              top: height * 0.775,
+              left: width * 0.85,
+              child: FloatingActionButton(
+                onPressed: () async {
+                  await addReminder(context);
+                },
+                backgroundColor: Color(0xFF60BBFE).withOpacity(0.75),
+                child: Icon(Icons.add, color: Colors.white, size: 32),
+              ),
+            )
+        ],
+      ),
+      onTap: () {
+        // setPlay(false);
+        Get.find<AllReminders>().play = false;
+      },
     );
   }
 }
