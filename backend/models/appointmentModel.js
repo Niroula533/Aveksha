@@ -9,10 +9,6 @@ const appointment = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
   patient_id: {
     type: mongoose.SchemaTypes.ObjectId,
     ref:"Patient",

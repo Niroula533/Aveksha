@@ -21,7 +21,7 @@ void main() async {
     var refreshToken = await storage.read(key: 'refreshToken');
     var response = await Dio().post(
       'http://10.0.2.2:3000/user',
-      data: {'accessToken': accessToken, 'refreshToken': refreshToken},
+      data: {'refreshToken': refreshToken},
       options: Options(validateStatus: ((status) {
         return status! < 500;
       })),
@@ -70,6 +70,7 @@ void main() async {
       }
     }
   } else {
+    await storage.deleteAll();
     initialRoute = '/login';
     // initialRoute = '/patientMain';
   }

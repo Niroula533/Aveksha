@@ -1,6 +1,6 @@
 import 'package:aveksha/patient/mainPage.dart';
-import 'package:aveksha/patientRegistrationPage.dart';
-import 'package:aveksha/doctorRegistrationPage.dart';
+import 'package:aveksha/patient/patientRegistrationPage.dart';
+import 'package:aveksha/doctor/doctorRegistrationPage.dart';
 import 'package:flutter/material.dart';
 import 'package:aveksha/firstPage.dart';
 import 'package:aveksha/loginPage.dart';

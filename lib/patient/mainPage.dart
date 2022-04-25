@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
-import '../navigation_bar.dart';
+import '../comp/navigation_bar.dart';
 
 class PatientMainPage extends StatefulWidget {
   PatientMainPage({Key? key}) : super(key: key);

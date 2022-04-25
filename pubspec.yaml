@@ -41,6 +41,10 @@ dependencies:
   otp_text_field: ^1.1.2
   flutter_secure_storage: ^4.2.1
   get: ^4.6.1
+  file_picker: ^1.13.3
+  cloudinary_sdk: ^3.0.1+7
+  syncfusion_flutter_pdfviewer: ^18.4.49-beta
+  photo_view: ^0.13.0
 
 dev_dependencies:
   flutter_test:

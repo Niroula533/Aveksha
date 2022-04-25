@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
 import 'package:intl/intl.dart';
-import './apis/register.dart';
+import '../apis/register.dart';
 
 class PatientRegistrationPage extends StatefulWidget {
   const PatientRegistrationPage({Key? key}) : super(key: key);

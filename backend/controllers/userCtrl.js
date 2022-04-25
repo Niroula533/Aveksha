@@ -213,29 +213,25 @@ const userCtrl = {
   },
   getUser: async (req, res) => {
     try {
-      const { accessToken, refreshToken } = req.body;
-      const gotUser = jwt.verify(
-        accessToken,
-        process.env.ACCESS_TOKEN,
-        (err, decoded) => {
+      const { refreshToken } = req.body;
+      var accesstoken;
+      const u = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN,
+        (err, user) => {
           if (err) {
-            const decod = jwt.verify(
-              refreshToken,
-              process.env.REFRESH_TOKEN,
-              (err, user) => {
-                if (err)
-                  return res
-                    .status(400)
-                    .json({ msg: "Invalid authentication" });
-                const accesstoken = createAccessToken(user);
-                return { ...user, accesstoken };
-              }
-            );
-            return decod;
+            return res.status(400).json({ msg: "Invalid authentication" });
           }
-          return decoded;
+          accesstoken = createAccessToken({
+            userId: user.userId,
+            role: user.role,
+            id: user.id,
+          });
+
+          return user;
         }
       );
+      const gotUser = { ...u, accesstoken };
       const user = await User.findOne({ _id: gotUser.userId });
       let roledUser;
       if (user.role == 0) {
@@ -251,10 +247,10 @@ const userCtrl = {
         user,
         roledUser,
       };
-      if (gotUser.accesstoken) {
+      if (accesstoken) {
         return res.json({
           user: finalUser,
-          accessToken: gotUser.accesstoken,
+          accessToken: accesstoken,
         });
       }
       return res.json({
@@ -271,8 +267,7 @@ const userCtrl = {
         accessToken,
         process.env.ACCESS_TOKEN,
         (err, user) => {
-          if (err)
-            throw err;
+          if (err) throw err;
           return user;
         }
       );
@@ -285,7 +280,10 @@ const userCtrl = {
         doseTime: parsedReminder.doseTime,
       });
       await reminders.save();
-      return res.json({ msg: "Reminder added successfully!",id: reminder._id });
+      return res.json({
+        msg: "Reminder added successfully!",
+        id: reminder._id,
+      });
     } catch (err) {
       console.log(err);
       return res.status(500).json({ msg: err.message });
@@ -323,15 +321,15 @@ const userCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
-  delReminder: async (req,res) =>{
+  delReminder: async (req, res) => {
     try {
-      const{reminderId} = req.body;
+      const { reminderId } = req.body;
       await Reminder.findByIdAndDelete(reminderId);
-      return res.json({msg: "Reminder deleted successfully!"});
+      return res.json({ msg: "Reminder deleted successfully!" });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
-  }
+  },
 };
 
 const createAccessToken = (user) => {

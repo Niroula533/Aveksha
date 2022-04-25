@@ -1,21 +1,22 @@
 const mongoose = require("mongoose");
 
-const EHR = new mongoose.Schema({
+const HR = new mongoose.Schema({
   date: {
-    type: Date,
+    type: String,
     required: true,
   },
   title: {
     type: String,
     required: true,
   },
-  file: {
-    type: Blob,
+  url: {
+    type: String,
+    required: true,
   },
   patient_id: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref:"Patient",
+    ref: "Patient",
   },
 });
 
-module.exports = mongoose.model("EHR", EHR);
+module.exports = mongoose.model("HR", HR);

@@ -50,6 +50,7 @@ Future<void> addReminder(
                     ),
                     SizedBox(
                       height: 10,
+                      width: MediaQuery.of(context).size.width*0.8,
                     ),
                     TextFormField(
                       controller: _dosageController,

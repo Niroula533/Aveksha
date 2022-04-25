@@ -1,8 +1,11 @@
 import 'package:aveksha/apis/getNdeleteReminders.dart';
+import 'package:aveksha/controllers/hrControl.dart';
 import 'package:aveksha/controllers/reminderControl.dart';
+import 'package:aveksha/controllers/userControl.dart';
 import 'package:aveksha/loginPage.dart';
 import 'package:aveksha/models/medicine_model.dart';
 import 'package:aveksha/patient/components/appointments.dart';
+import 'package:aveksha/patient/components/hr_component.dart';
 import 'package:aveksha/patient/components/prevAppointment.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -26,30 +29,8 @@ class PatientHome extends StatefulWidget {
 
 class _PatientHomeState extends State<PatientHome> {
   final allMedicine = Get.put(AllReminders());
+  final allHr = Get.put(AllHR());
   bool play = false;
-  @override
-  void initState() {
-    // getReminder().then((reminders) {
-    //   setState(() {
-    //     allMedicine = reminders.map((v) {
-    //       List<DoseTime> dts = List.generate(v['doseTime'].length, (index) {
-    //         return DoseTime(
-    //             v['doseTime'][index]['isTaken'], v['doseTime'][index]['time']);
-    //       });
-    //       Meds med = Meds(v['name'], v['dosage'], dts);
-    //       return Medicine(
-    //           id: v['_id'],
-    //           med: med,
-    //           setPlay: setPlay,
-    //           getPlay: getPlay,
-    //           delReminder: delReminder);
-    //     }).toList();
-    //   });
-    // });
-    // Get.find<AllReminders>().getAllReminders();
-
-    super.initState();
-  }
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   List<Widget> appointments = [
@@ -78,18 +59,6 @@ class _PatientHomeState extends State<PatientHome> {
     return play;
   }
 
-  // updateAllMedicine(Meds med, id) {
-  //   setState(() {
-  //     allMedicine.add(Medicine(
-  //       id: id,
-  //       med: med,
-  //       setPlay: setPlay,
-  //       getPlay: getPlay,
-  //       delReminder: delReminder,
-  //     ));
-  //   });
-  // }
-
   bool medActive = true;
   bool ehrActive = false;
   bool docActive = false;
@@ -115,18 +84,6 @@ class _PatientHomeState extends State<PatientHome> {
       });
     }
   }
-
-  // delReminder(id) {
-  //   setState(() {
-  //     allMedicine.removeWhere((element) => element.id == id);
-  //   });
-  //   deleteReminder(id).then((msg) {
-  //     final snack = SnackBar(
-  //       content: Text(msg),
-  //     );
-  //     ScaffoldMessenger.of(context).showSnackBar(snack);
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -283,7 +240,20 @@ class _PatientHomeState extends State<PatientHome> {
                               children: prevAppointments)),
                       // ...prevAppointments
                     ],
-                  )
+                  ),
+                if (ehrActive)
+                  Expanded(
+                    child: GetX<AllHR>(builder: (controller) {
+                      return ListView.builder(
+                        itemCount: controller.allHr.length,
+                        itemBuilder: (context, index) {
+                          return controller.allHr[index];
+                        },
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                      );
+                    }),
+                  ),
               ],
             ),
           ),
@@ -293,7 +263,11 @@ class _PatientHomeState extends State<PatientHome> {
               left: width * 0.85,
               child: FloatingActionButton(
                 onPressed: () async {
-                  await addReminder(context);
+                  if (medActive) {
+                    await addReminder(context);
+                  } else {
+                    await addHealthRecords(context);
+                  }
                 },
                 backgroundColor: Color(0xFF60BBFE).withOpacity(0.75),
                 child: Icon(Icons.add, color: Colors.white, size: 32),

@@ -5,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const userRoute = require("./routes/userRoute");
+const hrRoute = require('./routes/hrRoutes');
 const hospitalModel = require("./models/hospitalModel");
 
 const app = express();
@@ -43,6 +44,7 @@ app.post('/hospital', async(req,res)=>{
 })
 
 app.use("/user", userRoute);
+app.use("/hr",hrRoute);
 
 app.listen(PORT, () => {
   console.log(`Running on server ${PORT}`);

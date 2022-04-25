@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'apis/register.dart';
+import '../apis/register.dart';
 
 class DoctorRegistrationPage extends StatefulWidget {
   const DoctorRegistrationPage({Key? key}) : super(key: key);
