@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_final_fields, no_logic_in_create_state, prefer_const_literals_to_create_immutables
 
-import 'package:aveksha/labTestAppointment.dart';
+import 'package:aveksha/labTechs/labTestAppointment.dart';
 import 'package:flutter/material.dart';
 
 class LabTechPage extends StatefulWidget {

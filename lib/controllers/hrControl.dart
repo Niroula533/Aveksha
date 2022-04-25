@@ -144,7 +144,7 @@ class AllHR extends GetxController {
   getAllHR() async {
     var allHRs = await getHR();
     List r = []; //reports list
-    if (allHRs[0] != null) {
+    if (allHRs.isNotEmpty) {
       List<FilteredReports> allDates = [];
 
       var tempDate = allHRs[0]['date'];
