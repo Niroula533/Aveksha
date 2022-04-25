@@ -83,7 +83,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   final String initialRoute;
   MyApp({Key? key, required this.initialRoute}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

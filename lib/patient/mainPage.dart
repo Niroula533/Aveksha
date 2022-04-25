@@ -39,13 +39,10 @@ class _PatientMainPageState extends State<PatientMainPage> {
     //   child: Text("MedFeed"),
     // )
   ];
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         body: pages[_currentIndex],
         extendBody: true,
         bottomNavigationBar: NavBar(updateIndex: updateIndex),
-      ),
-      debugShowCheckedModeBanner: false,
-    );
+      );
   }
 }

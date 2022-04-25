@@ -160,7 +160,10 @@ class _DoctorHomeState extends State<DoctorHome> {
                 // ...prevAppointments
               ],
             ),
-          if (scheduleActive) Container()
+          if (scheduleActive) Container(),
+          FloatingActionButton(onPressed: (){
+            
+          })
         ],
       ),
     );

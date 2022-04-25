@@ -33,18 +33,7 @@ class _PatientHomeState extends State<PatientHome> {
   bool play = false;
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<Widget> appointments = [
-    DoctorAppointment(
-        doctorName: 'A',
-        speciality: 'Pediatrician',
-        appointmentDate: 'TODAY',
-        appointmentTime: '01:30 PM'),
-    DoctorAppointment(
-        doctorName: 'B',
-        speciality: 'Physician',
-        appointmentDate: 'JAN 28',
-        appointmentTime: '12:00 PM'),
-  ];
+  
   List<Widget> prevAppointments = [
     PrevDoctorAppointment(doctorName: 'A', speciality: 'Pediatrician')
   ];
@@ -87,6 +76,20 @@ class _PatientHomeState extends State<PatientHome> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> appointments = [
+    DoctorAppointment(
+      context: context,
+        doctorName: 'A',
+        speciality: 'Pediatrician',
+        appointmentDate: 'TODAY',
+        appointmentTime: '01:30 PM'),
+    DoctorAppointment(
+      context: context,
+        doctorName: 'B',
+        speciality: 'Physician',
+        appointmentDate: 'JAN 28',
+        appointmentTime: '12:00 PM'),
+  ];
     List<PopupMenuItem> menuItems = [
       PopupMenuItem(child: Text("Edit Profile")),
       PopupMenuItem(

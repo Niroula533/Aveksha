@@ -252,12 +252,15 @@ const userCtrl = {
           user: finalUser,
           accessToken: accesstoken,
         });
+      }else{
+        return res.json({
+          user: finalUser,
+        });
       }
-      return res.json({
-        user: finalUser,
-      });
+      
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      // return res.status(500).json({ msg: err.message });
+      console.log(err);
     }
   },
   addReminder: async (req, res) => {

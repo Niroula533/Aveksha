@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class DoctorAppointment extends StatelessWidget {
-  final doctorName, speciality, appointmentDate, appointmentTime;
+  final doctorName, speciality, appointmentDate, appointmentTime, context;
   const DoctorAppointment(
       {Key? key,
       required this.doctorName,
+      required this.context,
       required this.speciality,
       required this.appointmentDate,
       required this.appointmentTime})
@@ -28,15 +29,23 @@ class DoctorAppointment extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Dr. $doctorName',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(this.context)
+                                  .pushNamed('/labAppointmentRequest');
+                            },
+                            child: Text(
+                              'Dr. $doctorName',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
                           ),
                           Text(
                             speciality,
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w700,fontStyle: FontStyle.italic),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                fontStyle: FontStyle.italic),
                           )
                         ],
                       ),

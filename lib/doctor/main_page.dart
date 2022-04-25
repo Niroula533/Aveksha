@@ -33,13 +33,10 @@ class _DoctorMainPageState extends State<DoctorMainPage> {
       ),
       FeedBackPage(logout: goToLogin),
     ];
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         body: pages[_currentIndex],
         extendBody: true,
         bottomNavigationBar: NavBar(updateIndex: updateIndex),
-      ),
-      debugShowCheckedModeBanner: false,
-    );
+      );
   }
 }
