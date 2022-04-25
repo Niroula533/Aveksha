@@ -45,6 +45,10 @@ dependencies:
   cloudinary_sdk: ^3.0.1+7
   syncfusion_flutter_pdfviewer: ^18.4.49-beta
   photo_view: ^0.13.0
+  http: ^0.13.4
+  flutter_rating_bar: ^4.0.0
+  rating_dialog: ^2.0.0
+
 
 dev_dependencies:
   flutter_test:

@@ -1,19 +1,21 @@
+// ignore_for_file: prefer_const_constructors
+import 'package:aveksha/patient/components/display_listOfDoctor.dart';
+import 'package:aveksha/patient/components/display_specialities.dart';
 import 'package:aveksha/patient/mainPage.dart';
+import 'package:aveksha/patient/search.dart';
+import 'package:aveksha/patientRegistrationPage.dart';
+import 'package:aveksha/doctorRegistrationPage.dart';
 import 'package:flutter/material.dart';
 import 'package:aveksha/firstPage.dart';
 import 'package:aveksha/loginPage.dart';
 import 'doctor/main_page.dart';
 import 'otpPage.dart';
-// ignore_for_file: prefer_const_constructors
-
 import 'package:aveksha/acceptedLabTech.dart';
 import 'package:aveksha/appointment.dart';
 import 'package:aveksha/bloodTest.dart';
 import 'package:aveksha/doctorviewappointment.dart';
 import 'package:aveksha/labTestAppointment.dart';
 import 'package:aveksha/labtech.dart';
-import 'package:aveksha/patientRegistrationPage.dart';
-import 'package:aveksha/doctorRegistrationPage.dart';
 import 'package:aveksha/pdfBloodTest.dart';
 import 'sugarTest.dart';
 
@@ -70,6 +72,14 @@ class RouteGenerator {
       case '/pdfBloodTest':
         return MaterialPageRoute(builder: (_) => PdfBloodTest());
       
+      case '/searchPage':
+        return MaterialPageRoute(builder: (_) => PatientSearch());
+      case '/display_listOfDoctor':
+        return MaterialPageRoute(builder: (_) => Display_Doctor(specialization: '',));
+      case '/display_specialities':
+        return MaterialPageRoute(builder: (_) => Specialities());
+
+
       default:
         // If there is no such named route in the switch statement, e.g. /third
         return _errorRoute();
