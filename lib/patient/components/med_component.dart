@@ -13,7 +13,8 @@ class Medicine extends StatelessWidget {
       this.dosage,
       required this.taken,
       required this.hours,
-      required this.minute})
+      required this.minute}
+      )
       : super(key: key);
 
   @override

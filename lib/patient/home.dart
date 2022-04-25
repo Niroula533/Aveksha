@@ -226,6 +226,7 @@ class _PatientHomeState extends State<PatientHome> {
     PopupMenuItem(child: Text("Edit Profile")),
     PopupMenuItem(child: Text("Sign Out"))
   ];
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;

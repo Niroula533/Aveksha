@@ -1,4 +1,7 @@
+import 'package:aveksha/patient/components/display_listOfDoctor.dart';
+import 'package:aveksha/patient/components/display_specialities.dart';
 import 'package:aveksha/patient/mainPage.dart';
+import 'package:aveksha/patient/search.dart';
 import 'package:aveksha/patientRegistrationPage.dart';
 import 'package:aveksha/doctorRegistrationPage.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +30,14 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => OtpPage());
       case '/patientMain':
         return MaterialPageRoute(builder: (_) => PatientMainPage());
+      case '/searchPage':
+        return MaterialPageRoute(builder: (_) => PatientSearch());
+      case '/display_listOfDoctor':
+        return MaterialPageRoute(builder: (_) => Display_Doctor(specialization: '',));
+      case '/display_specialities':
+        return MaterialPageRoute(builder: (_) => Specialities());
+
+
       default:
         // If there is no such named route in the switch statement, e.g. /third
         return _errorRoute();

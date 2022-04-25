@@ -39,6 +39,10 @@ dependencies:
   pattern_formatter: ^2.0.0
   dio: ^4.0.6
   otp_text_field: ^1.1.2
+  http: ^0.13.4
+  flutter_rating_bar: ^4.0.0
+  rating_dialog: ^2.0.0
+
 
 dev_dependencies:
   flutter_test:

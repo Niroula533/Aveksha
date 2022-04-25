@@ -1,3 +1,4 @@
+import 'package:aveksha/patient/search.dart';
 import 'package:flutter/material.dart';
 import 'home.dart';
 import '../navigation_bar.dart';
@@ -20,9 +21,10 @@ class _PatientMainPageState extends State<PatientMainPage> {
 
   List pages = [
     PatientHome(),
-    Center(
-      child: Text("Search"),
-    ),
+    PatientSearch(),
+    // Center(
+    //   child: Text("Search"),
+    // ),
     Center(
       child: Text("Message"),
     ),
