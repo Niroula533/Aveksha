@@ -15,7 +15,7 @@ Future<void> addReminder(
   BuildContext context,
 ) async {
   final formKey = GlobalKey<FormState>();
-  var _textEditingController = TextEditingController();
+  var _medNameController = TextEditingController();
   var _timesPerDayController = TextEditingController(text: '1');
   var _dosageController = TextEditingController();
   var _dateTime = DateTime.now();
@@ -38,9 +38,8 @@ Future<void> addReminder(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextFormField(
-                      controller: _textEditingController,
+                      controller: _medNameController,
                       validator: (value) {
-                        print(value);
                         return value!.isEmpty ? "Required" : null;
                       },
                       decoration: InputDecoration(
@@ -50,7 +49,7 @@ Future<void> addReminder(
                     ),
                     SizedBox(
                       height: 10,
-                      width: MediaQuery.of(context).size.width*0.8,
+                      width: MediaQuery.of(context).size.width * 0.8,
                     ),
                     TextFormField(
                       controller: _dosageController,
@@ -148,37 +147,46 @@ Future<void> addReminder(
                       int timesPerDay =
                           num.parse(_timesPerDayController.text).toInt();
 
-                      if (formKey.currentState!.validate()) {
-                        int interval = (24 / timesPerDay).truncate();
-                        var tempTime = _dateTime;
-                        List<DateTime> sortedTime =
-                            List.generate(timesPerDay, (index) {
-                          var t =
-                              tempTime.add(Duration(hours: index * interval));
-                          return t;
-                        });
-                        sortedTime.sort(((a, b) => a.hour.compareTo(b.hour)));
-                        List<DoseTime> doseTime =
-                            List.generate(timesPerDay, ((index) {
-                          return DoseTime(
-                              0, DateFormat.Hm().format(sortedTime[index]));
-                        }));
+                      // if (formKey.currentState!.validate()) {
+                      //   int interval = (24 / timesPerDay).truncate();
+                      //   var tempTime = _dateTime;
+                      //   List<DateTime> sortedTime =
+                      //       List.generate(timesPerDay, (index) {
+                      //     var t =
+                      //         tempTime.add(Duration(hours: index * interval));
+                      //     print(t);
+                      //     return t;
+                      //   });
+                      //   sortedTime.sort(((a, b) => a.hour.compareTo(b.hour)));
+                      //   List<DoseTime> doseTime =
+                      //       List.generate(timesPerDay, ((index) {
+                      //     return DoseTime(
+                      //         0, DateFormat.Hm().format(sortedTime[index]));
+                      //   }));
 
-                        Meds med = Meds(_textEditingController.text,
-                            _dosageController.text, doseTime);
-                        var encodedMed = jsonEncode(med);
-                        Navigator.of(context).pop();
-                        var storage = FlutterSecureStorage();
-                        final accessToken =
-                            await storage.read(key: 'accessToken');
-                        var response = await Dio()
-                            .post('http://10.0.2.2:3000/user/reminder', data: {
-                          'reminder': encodedMed,
-                          'accessToken': accessToken
-                        });
-                        Get.find<AllReminders>()
-                            .addReminder(med: med, id: response.data['id']);
-                        Get.find<AllReminders>().refresh();
+                      //   Meds med = Meds(_textEditingController.text,
+                      //       _dosageController.text, doseTime);
+                      //   var encodedMed = jsonEncode(med);
+                      //   Navigator.of(context).pop();
+                      //   var storage = FlutterSecureStorage();
+                      //   final accessToken =
+                      //       await storage.read(key: 'accessToken');
+                      //   var response = await Dio()
+                      //       .post('http://10.0.2.2:3000/user/reminder', data: {
+                      //     'reminder': encodedMed,
+                      //     'accessToken': accessToken
+                      //   });
+                      //   Get.find<AllReminders>()
+                      //       .addReminder(med: med, id: response.data['id']);
+                      //   Get.find<AllReminders>().refresh();
+                      // }
+                      if (formKey.currentState!.validate()) {
+                        Get.find<AllReminders>().addReminder(
+                            timesPerDay: timesPerDay,
+                            dateTime: _dateTime,
+                            medName: _medNameController.text,
+                            dosage: _dosageController.text,
+                            context: context);
                       }
                     },
                     child: Text("Add")),

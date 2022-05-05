@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart'
 import 'package:dio/dio.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:intl/intl.dart';
 
 Future<List> getHR() async {
   final storage = FlutterSecureStorage();
@@ -49,71 +50,68 @@ class HR extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),
-      child: ConstrainedBox(
-        constraints:
-            BoxConstraints(maxHeight: height * 0.2, minHeight: height * 0.1),
-        child: Container(
-          padding: EdgeInsets.all(8),
-          color: Colors.white60,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(date, style: TextStyle(color: Color(0xFF60BBFE))),
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: reports.length,
-                        itemBuilder: ((context, index) {
-                          String extension = reports[index].url.split('.').last;
-                          bool isImage = extension.contains('jp');
+      child: Container(
+        padding: EdgeInsets.all(8),
+        color: Colors.white60,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(date, style: TextStyle(color: Color(0xFF60BBFE))),
+            Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: reports.length,
+                      itemBuilder: ((context, index) {
+                        String extension = reports[index].url.split('.').last;
+                        bool isImage = extension.contains('jp');
 
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              TextButton(
-                                  onPressed: () async {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute<void>(
-                                        builder: (BuildContext context) =>
-                                            Scaffold(
-                                          appBar: AppBar(
-                                              title:
-                                                  Text(reports[index].title)),
-                                          body: isImage
-                                              ? PhotoView(
-                                                  imageProvider: NetworkImage(
-                                                      reports[index].url),
-                                                )
-                                              : SfPdfViewer.network(
-                                                  reports[index].url),
-                                        ),
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                                onPressed: () async {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          Scaffold(
+                                        appBar: AppBar(
+                                            title: Text(reports[index].title)),
+                                        body: isImage
+                                            ? PhotoView(
+                                                imageProvider: NetworkImage(
+                                                    reports[index].url),
+                                              )
+                                            : SfPdfViewer.network(
+                                                reports[index].url),
                                       ),
-                                    );
-                                  },
-                                  child: Text(
-                                    reports[index].title,
-                                    style: TextStyle(color: Colors.black54),
-                                  )),
-                              IconButton(
-                                  onPressed: () async {
-                                    await Get.find<AllHR>()
-                                        .deleteHR(id: reports[index].id);
-                                  },
-                                  icon: Icon(Icons.delete))
-                            ],
-                          );
-                        }))
-                  ],
-                ),
-              )
-            ],
-          ),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  reports[index].title,
+                                  style: TextStyle(color: Colors.black54),
+                                )),
+                            IconButton(
+                                onPressed: () async {
+                                  await Get.find<AllHR>()
+                                      .deleteHR(id: reports[index].id);
+                                },
+                                icon: Icon(Icons.delete))
+                          ],
+                        );
+                      }))
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -148,22 +146,21 @@ class AllHR extends GetxController {
       List<FilteredReports> allDates = [];
 
       var tempDate = allHRs[0]['date'];
-
       // allDates.add(FilteredReports(date: tempDate, reports: []));
       var i = 0;
-      for (i = 0; i < allHRs.length; i++) {
+      for (i = 0; i < allHRs.length; ++i) {
         if (allHRs[i]['date'] != tempDate) {
-          tempDate = allHRs[i]['date'];
           allDates.add(FilteredReports(date: tempDate, reports: r));
-          r.clear();
-          r.add(allHRs[i]);
+          // print(r);
+          tempDate = allHRs[i]['date'];
+          // r.clear();
+           r = [allHRs[i]];
+          // print(r);
         } else {
           r.add(allHRs[i]);
         }
       }
-
       allDates.add(FilteredReports(date: tempDate, reports: r));
-      print(allDates[0].reports);
       allHr.value = allDates.map((e) {
         return HR(date: e.date, reports: listOfReports(e.reports));
       }).toList();
@@ -182,11 +179,12 @@ class AllHR extends GetxController {
     var specificHrListIndex =
         allHr.indexWhere((element) => element.date == date);
     if (specificHrListIndex == -1) {
-      print("response: $response");
       r.add(Reports(title: title, url: url, id: response['id']));
       allHr.add(HR(date: date, reports: r));
       allHr.sort(((a, b) {
-        bool isTrue = DateTime.parse(a.date).isBefore(DateTime.parse(b.date));
+        bool isTrue = DateFormat.yMd()
+            .parse(a.date)
+            .isAfter(DateFormat.yMd().parse(b.date));
         if (isTrue) {
           return 1;
         } else {

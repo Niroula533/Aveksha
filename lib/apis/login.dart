@@ -34,26 +34,30 @@ Future<dynamic> handleLogin(
           role: user['role'],
           address: user['address'],
           dob: roledUser['pickedDate'],
-          gender: roledUser['gender']);
+          gender: roledUser['gender'],
+          confirmed: user["confirmed"]);
     } else if (user['role'] == 1) {
       Get.find<UserInfo>().updateInfo(
-        firstName: user['firstName'],
-        lastName: user['lastName'],
-        email: user['email'],
-        phone: user['contact'],
-        role: user['role'],
-        address: user['address'],
-        nmc: roledUser['nmc'],
-      );
+          firstName: user['firstName'],
+          lastName: user['lastName'],
+          email: user['email'],
+          phone: user['contact'],
+          role: user['role'],
+          address: user['address'],
+          nmc: roledUser['nmc'],
+          booked: roledUser['booked'],
+          speciality: roledUser['speciality'],
+          confirmed: user["confirmed"]);
     } else {
       Get.find<UserInfo>().updateInfo(
-        firstName: user['firstName'],
-        lastName: user['lastName'],
-        email: user['email'],
-        phone: user['contact'],
-        role: user['role'],
-        address: user['address'],
-      );
+          firstName: user['firstName'],
+          lastName: user['lastName'],
+          email: user['email'],
+          phone: user['contact'],
+          role: user['role'],
+          address: user['address'],
+          speciality: roledUser['speciality'],
+          confirmed: user["confirmed"]);
     }
     await storage.write(key: 'role', value: user['role'].toString());
     await storage.write(

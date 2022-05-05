@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
+import 'package:pattern_formatter/date_formatter.dart';
 
 Future<void> addHealthRecords(
   BuildContext context,
@@ -63,7 +64,7 @@ Future<void> addHealthRecords(
                     _file,
                     TextButton(
                         onPressed: () async {
-                          file = await FilePicker.getFile();
+                          file = await FilePicker.platform.pickFiles();
                           if (file == null) {
                             _file = Text("No File Selected!");
                             return;
@@ -106,10 +107,6 @@ Future<void> addHealthRecords(
                     child: Text("Cancel")),
                 TextButton(
                     onPressed: () async {
-                      // var response = await Dio().post(
-                      //     'http://localhost:3000/hr',
-                      //     data: {"file": file});
-                      // print(response);
                       if (file != null) {
                         var fileName =
                             file.path.split('/').last + _dateTime.toString();
@@ -167,4 +164,112 @@ Widget buildFile(File file, width) {
       ],
     ),
   );
+}
+
+Widget searchHealthRecords(BuildContext context,
+    TextEditingController _startDate, TextEditingController _endDate) {
+  return Obx(() {
+    return Get.find<AllHR>().allHr.isNotEmpty
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.35,
+                    child: TextField(
+                        controller: _startDate,
+                        inputFormatters: [DateInputFormatter()],
+                        keyboardType: TextInputType.number,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          labelText: 'Start Date',
+                        ),
+                        onTap: () async {
+                          DateTime? _dateTime;
+                          _dateTime = await showDatePicker(
+                              context: context,
+                              initialDate: DateFormat.yMd()
+                                  .parse(Get.find<AllHR>().allHr.first.date),
+                              firstDate: DateFormat.yMd()
+                                  .parse(Get.find<AllHR>().allHr.first.date),
+                              lastDate: DateFormat.yMd()
+                                  .parse(Get.find<AllHR>().allHr.last.date));
+
+                          String stringDate =
+                              Get.find<AllHR>().allHr.first.date;
+                          if (_dateTime != null) {
+                            stringDate = DateFormat.yMd().format(_dateTime);
+                          }
+                          _startDate.text = stringDate;
+                        }),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.35,
+                    child: TextField(
+                        controller: _endDate,
+                        inputFormatters: [DateInputFormatter()],
+                        keyboardType: TextInputType.number,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          labelText: 'End Date',
+                        ),
+                        onTap: () async {
+                          DateTime? _dateTime;
+                          _dateTime = await showDatePicker(
+                              context: context,
+                              initialDate: DateFormat.yMd()
+                                  .parse(Get.find<AllHR>().allHr.last.date),
+                              firstDate: DateFormat.yMd()
+                                  .parse(Get.find<AllHR>().allHr.first.date),
+                              lastDate: DateFormat.yMd()
+                                  .parse(Get.find<AllHR>().allHr.last.date));
+
+                          String stringDate = Get.find<AllHR>().allHr.last.date;
+                          if (_dateTime != null) {
+                            stringDate = DateFormat.yMd().format(_dateTime);
+                          }
+                          _endDate.text = stringDate;
+                        }),
+                  ),
+                ],
+              ),
+              SizedBox(height: 15,),
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(14),
+              //   child: TextButton(
+              //       style: ButtonStyle(
+              //         padding: MaterialStateProperty.all<EdgeInsets>(
+              //             EdgeInsets.all(2.5)),
+              //         backgroundColor:
+              //             MaterialStateProperty.all<Color>(Color(0xFF60BBFE)),
+              //       ),
+              //       onPressed: null,
+              //       child: Padding(
+              //         padding: const EdgeInsets.all(8.0),
+              //         child: Text(
+              //           'SEARCH',
+              //           style: TextStyle(
+              //               color: Colors.white,
+              //               fontSize: 20,
+              //               fontWeight: FontWeight.w900,
+              //               letterSpacing: 1.1),
+              //         ),
+              //       )),
+              // )
+            ],
+          )
+        : Container(
+            child: Text("No HR added yet!"),
+          );
+  });
 }

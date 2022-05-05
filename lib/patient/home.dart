@@ -1,23 +1,14 @@
-import 'package:aveksha/apis/getNdeleteReminders.dart';
 import 'package:aveksha/controllers/hrControl.dart';
 import 'package:aveksha/controllers/reminderControl.dart';
-import 'package:aveksha/controllers/userControl.dart';
-import 'package:aveksha/loginPage.dart';
-import 'package:aveksha/models/medicine_model.dart';
 import 'package:aveksha/patient/components/appointments.dart';
 import 'package:aveksha/patient/components/hr_component.dart';
 import 'package:aveksha/patient/components/prevAppointment.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import './components/tab_component.dart';
-import 'components/med_component.dart';
 import 'components/reminder_component.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
 
 class PatientHome extends StatefulWidget {
   final Function logout;
@@ -31,9 +22,11 @@ class _PatientHomeState extends State<PatientHome> {
   final allMedicine = Get.put(AllReminders());
   final allHr = Get.put(AllHR());
   bool play = false;
+  var _startDate = TextEditingController();
+  var _endDate = TextEditingController();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  
+
   List<Widget> prevAppointments = [
     PrevDoctorAppointment(doctorName: 'A', speciality: 'Pediatrician')
   ];
@@ -77,19 +70,19 @@ class _PatientHomeState extends State<PatientHome> {
   @override
   Widget build(BuildContext context) {
     List<Widget> appointments = [
-    DoctorAppointment(
-      context: context,
-        doctorName: 'A',
-        speciality: 'Pediatrician',
-        appointmentDate: 'TODAY',
-        appointmentTime: '01:30 PM'),
-    DoctorAppointment(
-      context: context,
-        doctorName: 'B',
-        speciality: 'Physician',
-        appointmentDate: 'JAN 28',
-        appointmentTime: '12:00 PM'),
-  ];
+      DoctorAppointment(
+          context: context,
+          doctorName: 'A',
+          speciality: 'Pediatrician',
+          appointmentDate: 'TODAY',
+          appointmentTime: '01:30 PM'),
+      DoctorAppointment(
+          context: context,
+          doctorName: 'B',
+          speciality: 'Physician',
+          appointmentDate: 'JAN 28',
+          appointmentTime: '12:00 PM'),
+    ];
     List<PopupMenuItem> menuItems = [
       PopupMenuItem(child: Text("Edit Profile")),
       PopupMenuItem(
@@ -103,6 +96,36 @@ class _PatientHomeState extends State<PatientHome> {
         },
       ))
     ];
+
+    searchHR() {
+      if (_startDate.text.isNotEmpty && _endDate.text.isNotEmpty) {
+        return ListView.builder(
+            itemCount: allHr.allHr.length,
+            itemBuilder: (context, index) {
+              if (DateFormat.yMd()
+                      .parse(allHr.allHr[index].date)
+                      .isBefore(DateFormat.yMd().parse(_startDate.text)) ||
+                  DateFormat.yMd()
+                      .parse(allHr.allHr[index].date)
+                      .isAfter(DateFormat.yMd().parse(_endDate.text))) {
+                return Container();
+              } else {
+                return Column(
+                  children: [
+                    allHr.allHr[index],
+                    SizedBox(
+                      height: 10,
+                    )
+                  ],
+                );
+              }
+            });
+      } else {
+        return Center(
+          child: Text("Set dates and search to view HR"),
+        );
+      }
+    }
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -246,16 +269,31 @@ class _PatientHomeState extends State<PatientHome> {
                   ),
                 if (ehrActive)
                   Expanded(
-                    child: GetX<AllHR>(builder: (controller) {
-                      return ListView.builder(
-                        itemCount: controller.allHr.length,
-                        itemBuilder: (context, index) {
-                          return controller.allHr[index];
-                        },
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                      );
-                    }),
+                    child: Column(
+                      children: [
+                        searchHealthRecords(context, _startDate, _endDate),
+                        Expanded(
+                          // child: GetX<AllHR>(builder: (controller) {
+                          //   return ListView.builder(
+                          //     itemCount: controller.allHr.length,
+                          //     itemBuilder: (context, index) {
+                          //       return Column(
+                          //         children: [
+                          //           controller.allHr[index],
+                          //           SizedBox(
+                          //             height: 10,
+                          //           )
+                          //         ],
+                          //       );
+                          //     },
+                          //     scrollDirection: Axis.vertical,
+                          //     shrinkWrap: true,
+                          //   );
+                          // }),
+                          child: searchHR(),
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),

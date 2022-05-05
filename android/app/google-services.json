@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "211819321642",
+    "project_id": "aveksha-9ca48",
+    "storage_bucket": "aveksha-9ca48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211819321642:android:1f6cb99252ab56d81d2653",
+        "android_client_info": {
+          "package_name": "com.example.aveksha"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211819321642-th0akcnkmp3255o4cd9hh15o9us3e85s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKfSqa4oLDCYLM01jiRzHqbD0Tp1YBAWM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211819321642-th0akcnkmp3255o4cd9hh15o9us3e85s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

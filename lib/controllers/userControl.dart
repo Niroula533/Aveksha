@@ -6,11 +6,24 @@ class UserInfo extends GetxController {
       email = '',
       address = '',
       dob = '',
-      gender = '';
-
+      gender = '',
+      speciality = '';
+  bool confirmed = false;
   int role = -1, phone = 0, nmc = 0;
+  List booked = [];
   updateInfo(
-      {firstName, lastName, email, phone, role, address, dob, gender, nmc}) {
+      {firstName,
+      lastName,
+      email,
+      phone,
+      role,
+      address,
+      dob,
+      gender,
+      nmc,
+      booked,
+      speciality,
+      confirmed}) {
     if (firstName != null) this.firstName = firstName;
     if (lastName != null) this.lastName = lastName;
     if (email != null) this.email = email;
@@ -20,5 +33,8 @@ class UserInfo extends GetxController {
     if (dob != null) this.dob = dob;
     if (gender != null) this.gender = gender;
     if (nmc != null) this.nmc = nmc;
+    if (booked != null) this.booked = booked;
+    if (speciality != null) this.speciality = speciality;
+    if (confirmed != null) this.confirmed = confirmed;
   }
 }

@@ -33,11 +33,10 @@ class _NavigationBarState extends State<NavBar> {
             BottomNavigationBarItem(icon: Icon(Icons.search),label: "", tooltip: 'Search'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.messenger_rounded),label: "", tooltip: 'Message'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.quiz_rounded),label: "", tooltip: 'MedFeed'),
+            
           ],
           onTap: (index) {
-            widget.updateIndex(index);
+            widget.updateIndex(index:index);
             setState(() {
               currentTabIndex = index;
             });

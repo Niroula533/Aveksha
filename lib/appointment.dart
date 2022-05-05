@@ -43,25 +43,6 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
     super.dispose();
   }
 
-  //Widget selectTime() {
-  // return Column(
-  //   children: [
-  //     SizedBox(
-  //       height: 100,
-  //       child: CupertinoDatePicker(
-  //           initialDateTime: _pickedTime
-  //               .add(Duration(minutes: 30 - _pickedTime.minute % 30)),
-  //           minuteInterval: 30,
-  //           mode: CupertinoDatePickerMode.time,
-  //           onDateTimeChanged: (dateTime) {
-  //             setState(() {
-  //               _pickedTime = dateTime;
-  //             });
-  //           }),
-  //     ),
-  //   ],
-  // );
-  //}
   DateTime _time = DateTime.now();
   TimeOfDay? _pickedTime;
 
@@ -201,7 +182,6 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             setState(() {
                               _dateTime = date;
                             });
-                            // print(_pickedDate.text);
                             if (_dateTime != null &&
                                 _dateTime != DateTime.now) {
                               String stringDate =
@@ -259,7 +239,6 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             setState(() {
                               _pickedHours = value;
                             });
-                            //print(_pickedHours);
                           },
                           items: <double>[0.5, 1, 1.5, 2]
                               .map<DropdownMenuItem<double>>((var value) {

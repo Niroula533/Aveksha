@@ -1,4 +1,6 @@
+import 'package:aveksha/controllers/userControl.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:otp_text_field/otp_text_field.dart';
 import 'package:otp_text_field/style.dart';
 import 'package:dio/dio.dart';
@@ -43,6 +45,8 @@ class _OtpPageState extends State<OtpPage> {
                 'http://10.0.2.2:3000/user/otpcheck',
                 data: {'otp': pin, 'email': widget.email});
             if (response.data['msg'] == "Account is verified") {
+              Get.find<UserInfo>().confirmed = true;
+              Get.find<UserInfo>().refresh();
               Navigator.of(context).pushNamedAndRemoveUntil(
                   '/patientMain', (Route<dynamic> route) => false);
             }

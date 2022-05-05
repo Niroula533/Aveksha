@@ -12,7 +12,6 @@ require("dotenv").config();
 var generateOtp = async (email) => {
   var generatedOtp = Math.floor(100000 + Math.random() * 900000);
   generatedOtp = parseInt(generatedOtp);
-  console.log(generatedOtp);
 
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -111,32 +110,43 @@ const userCtrl = {
         id = newPatient._id;
       } else if (role == 1) {
         const { nmc } = req.body;
-        const nmc_email = await hospitalModel.findOne(
+        const hospitalDoctor = await hospitalModel.findOne(
           {
             doctors: { $elemMatch: { nmcNumber: nmc } },
           },
-          { _id: 0, doctors: { $elemMatch: { nmcNumber: nmc } } }
+          {
+            _id: 0,
+            doctors: { $elemMatch: { nmcNumber: nmc }, hospitalName: 1 },
+          }
         );
-        console.log(nmc_email.doctors[0]);
-        if (!nmc_email) {
+        if (!hospitalDoctor) {
           return res.status(400).json({
             msg: "No matching doctor found!",
           });
         }
-        if (email !== nmc_email.doctors[0].email)
+        if (email !== hospitalDoctor.doctors[0].email)
           return res
             .status(400)
             .json({ msg: "NMC number and email does not match" });
         const newDoctor = new Doctor({
           user_id: newUser._id,
+          hospital: hospitalDoctor.hospitalName,
           nmc,
+          speciality: hospitalDoctor.doctors[0].speciality,
         });
         await newDoctor.save();
         id = newDoctor._id;
       } else {
-        const labTechnician = await hospitalModel.findOne({
-          labTechnicians: { $elemMatch: { email: email } },
-        });
+        const labTechnician = await hospitalModel.findOne(
+          {
+            labTechnicians: { $elemMatch: { email: email } },
+          },
+          {
+            _id: 0,
+            labTechnicians: { $elemMatch: { email: email } },
+            hospitalName: 1,
+          }
+        );
 
         if (!labTechnician) {
           return res.status(400).json({
@@ -146,6 +156,8 @@ const userCtrl = {
 
         const newLabTechnician = new labTechnicianModel({
           user_id: newUser._id,
+          hospital: labTechnician.hospitalName,
+          speciality: labTechnician.labTechnicians[0].speciality,
         });
         await newLabTechnician.save();
         id = newLabTechnician._id;
@@ -220,18 +232,21 @@ const userCtrl = {
         process.env.REFRESH_TOKEN,
         (err, user) => {
           if (err) {
-            return res.status(400).json({ msg: "Invalid authentication" });
+            return null;
           }
           accesstoken = createAccessToken({
             userId: user.userId,
             role: user.role,
             id: user.id,
           });
-
           return user;
         }
       );
+      if (!u) {
+        return res.status(400).json({ msg: "Invalid authentication" });
+      }
       const gotUser = { ...u, accesstoken };
+      // console.log(gotUser);
       const user = await User.findOne({ _id: gotUser.userId });
       let roledUser;
       if (user.role == 0) {
@@ -252,12 +267,11 @@ const userCtrl = {
           user: finalUser,
           accessToken: accesstoken,
         });
-      }else{
+      } else {
         return res.json({
           user: finalUser,
         });
       }
-      
     } catch (err) {
       // return res.status(500).json({ msg: err.message });
       console.log(err);

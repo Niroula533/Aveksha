@@ -9,6 +9,7 @@ const hospitalModel = new mongoose.Schema({
       gender: String,
       degree: String,
       email: String,
+      speciality: String,
     },
   ],
   doctors: [
@@ -19,6 +20,7 @@ const hospitalModel = new mongoose.Schema({
       gender: String,
       degree: String,
       email: String,
+      speciality: String,
     },
   ],
 });

@@ -4,6 +4,7 @@ const Doctor = new mongoose.Schema({
     type: mongoose.SchemaTypes.ObjectId,
     ref:"User",
   },
+  hospital: String,
   nmc:{
     type: Number,
     required: true,
@@ -12,9 +13,8 @@ const Doctor = new mongoose.Schema({
   availability:[{
       type: Object
   }],
-  specialities:{
-      type: Array,
-  },
+  speciality:String,
+  booked:Array
 });
 
 module.exports = mongoose.model("Doctor", Doctor);

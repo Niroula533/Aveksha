@@ -45,6 +45,7 @@ app.post('/hospital', async(req,res)=>{
 
 app.use("/user", userRoute);
 app.use("/hr",hrRoute);
+app.use("/doctor",require("./routes/docRoute"));
 
 app.listen(PORT, () => {
   console.log(`Running on server ${PORT}`);

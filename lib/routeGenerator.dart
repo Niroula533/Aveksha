@@ -1,4 +1,7 @@
 // ignore_for_file: prefer_const_constructors
+import 'package:aveksha/comp/patient_doctor_view.dart';
+import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:aveksha/controllers/userControl.dart';
 import 'package:aveksha/patient/components/display_listOfDoctor.dart';
 import 'package:aveksha/patient/components/display_specialities.dart';
 import 'package:aveksha/patient/mainPage.dart';
@@ -8,6 +11,7 @@ import 'package:aveksha/doctor/doctorRegistrationPage.dart';
 import 'package:flutter/material.dart';
 import 'package:aveksha/firstPage.dart';
 import 'package:aveksha/loginPage.dart';
+import 'package:get/get.dart';
 import 'doctor/main_page.dart';
 import 'otpPage.dart';
 import 'package:aveksha/labTechs/acceptedLabTech.dart';
@@ -63,26 +67,36 @@ class RouteGenerator {
             builder: (_) => AcceptedLabTech(labAppInfo: labAppInfo));
       case '/bloodTest':
         String pname = settings.arguments as String;
-        return MaterialPageRoute(
-            builder: (_) => BloodTestLab(pname: pname));
+        return MaterialPageRoute(builder: (_) => BloodTestLab(pname: pname));
       case '/sugarTest':
         String pname = settings.arguments as String;
-        return MaterialPageRoute(
-            builder: (_) => SugarTestLab(pname: pname));
+        return MaterialPageRoute(builder: (_) => SugarTestLab(pname: pname));
       case '/pdfBloodTest':
         return MaterialPageRoute(builder: (_) => PdfBloodTest());
-      
       case '/searchPage':
-        return MaterialPageRoute(builder: (_) => PatientSearch());
-      case '/display_listOfDoctor':
-        return MaterialPageRoute(builder: (_) => Display_Doctor(specialization: '',));
-      case '/display_specialities':
-        return MaterialPageRoute(builder: (_) => Specialities());
-
-
+        Function updateIndex = settings.arguments as Function;
+        return MaterialPageRoute(
+            builder: (_) => PatientSearch(
+                  updateIndex: updateIndex,
+                ));
+      case '/patientToOther':
+        DocOrLab serviceProvider = settings.arguments as DocOrLab;
+        return MaterialPageRoute(
+            builder: (_) => PatientToDoctor(serviceProvider: serviceProvider));
       default:
         // If there is no such named route in the switch statement, e.g. /third
-        return _errorRoute();
+        int isInitialized = Get.find<UserInfo>().role;
+        print(isInitialized);
+        if (isInitialized == 0) {
+          return MaterialPageRoute(builder: (_) => PatientMainPage());
+        } else if (isInitialized == 1) {
+          return MaterialPageRoute(builder: (_) => DoctorMainPage());
+        } else if (isInitialized == 2) {
+          return MaterialPageRoute(builder: (_) => PdfBloodTest());
+          // needs to be changed to lab technician main page
+        } else {
+          return _errorRoute();
+        }
     }
   }
 

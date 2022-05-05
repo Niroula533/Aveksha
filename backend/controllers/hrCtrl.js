@@ -24,7 +24,6 @@ const hrCtrl = {
       const { accessToken } = req.body;
       const user = jwt.verify(accessToken, process.env.ACCESS_TOKEN);
       const allHRS = await HR.find({ patientId: user.id }).sort({ date: 1 });
-      console.log(allHRS);
       if (allHRS) {
         return res.json({ hr: allHRS });
       }
@@ -36,7 +35,7 @@ const hrCtrl = {
     try {
       const { accessToken } = req.body;
       const user = jwt.verify(accessToken, process.env.ACCESS_TOKEN);
-      const allHRS = await HR.findOneAndDelete({ patientId: user.id });
+      await HR.findOneAndDelete({ patientId: user.id });
       return res.json({msg: "Successfull"});
     } catch (err) {
       return res.status(500).json({ msg: err.message });
