@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const hospitalModel = require("../models/hospitalModel");
 const labTechnicianModel = require("../models/labTechnicianModel");
+const feedback = require("../models/feedbackModel");
 require("dotenv").config();
 
 const userCtrl = {
@@ -201,6 +202,28 @@ const userCtrl = {
         accesstoken: accesstoken,
         refreshtoken: refreshtoken,
         role: user.role,
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  rating: async (req, res) => {
+    try {
+      const { rating, comment, patient_id, doctor_id } = req.body;
+      const feedback_info = new feedback({
+        comment: comment,
+        rating: rating,
+        patient_id: patient_id,
+        doctor_id: doctor_id,
+      });
+      const patient = await User.findOne({ patient_id });
+      const patient_name = patient.firstName;
+      await feedback_info.save();
+      res.json({
+        patient_name,
+        comment,
+        rating,
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });

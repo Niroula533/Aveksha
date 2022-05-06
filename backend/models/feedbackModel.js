@@ -11,11 +11,11 @@ const feedback = new mongoose.model({
   },
   patient_id: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref:"Patient",
+    ref: "Patient",
   },
   doctor_id: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref:"Doctor",
+    ref: "Doctor",
   },
 });
 
