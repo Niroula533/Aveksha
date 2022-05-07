@@ -8,6 +8,7 @@ import 'package:aveksha/patient/mainPage.dart';
 import 'package:aveksha/patient/patientRegistrationPage.dart';
 import 'package:aveksha/patient/search.dart';
 import 'package:aveksha/doctor/doctorRegistrationPage.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:aveksha/firstPage.dart';
 import 'package:aveksha/loginPage.dart';
@@ -49,8 +50,11 @@ class RouteGenerator {
       case '/doctorMain':
         return MaterialPageRoute(builder: (_) => DoctorMainPage());
       case '/appointment':
-        AppointmentDet appointmentDetails = settings.arguments as AppointmentDet;
-        return MaterialPageRoute(builder: (_) => AppointmentRequest(appointmentDetails: appointmentDetails));
+        AppointmentDet appointmentDetails =
+            settings.arguments as AppointmentDet;
+        return MaterialPageRoute(
+            builder: (_) =>
+                AppointmentRequest(appointmentDetails: appointmentDetails));
       case '/doctorviewappointment':
         appointmentInfo = settings.arguments as AppointmentDetails;
         return MaterialPageRoute(
@@ -73,7 +77,8 @@ class RouteGenerator {
         String pname = settings.arguments as String;
         return MaterialPageRoute(builder: (_) => SugarTestLab(pname: pname));
       case '/pdfBloodTest':
-        return MaterialPageRoute(builder: (_) => PdfBloodTest());
+        BloodTestData btdata = settings.arguments as BloodTestData;
+        return MaterialPageRoute(builder: (_) => PdfBloodTest(btdata: btdata));
       case '/searchPage':
         Function updateIndex = settings.arguments as Function;
         return MaterialPageRoute(
@@ -92,9 +97,7 @@ class RouteGenerator {
           return MaterialPageRoute(builder: (_) => PatientMainPage());
         } else if (isInitialized == 1) {
           return MaterialPageRoute(builder: (_) => DoctorMainPage());
-        } else if (isInitialized == 2) {
-          return MaterialPageRoute(builder: (_) => PdfBloodTest());
-          // needs to be changed to lab technician main page
+         // needs to be changed to lab technician main page
         } else {
           return _errorRoute();
         }

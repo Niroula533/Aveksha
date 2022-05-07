@@ -14,7 +14,7 @@ class DocOrLab {
 
 class AppointMents {
   String patient_Name, problem, status, time;
-  int hour;
+  var hour;
   var date;
   var doctor_id, id;
   AppointMents(

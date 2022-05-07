@@ -54,6 +54,8 @@ dependencies:
   flutter_native_timezone: ^2.0.0
   firebase_core: ^1.15.0
   firebase_messaging: ^11.2.15
+  pdf: ^3.7.4
+  screenshot: ^1.2.3
 
 
 dev_dependencies:

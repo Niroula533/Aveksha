@@ -10,13 +10,13 @@ class DoctorViewAppointment extends StatefulWidget {
   DoctorViewAppointment({Key? key, required this.appointmentInfo})
       : super(key: key);
   @override
-   State<DoctorViewAppointment> createState() => _DoctorViewAppointmentState(
-       appointmentInfo.pname,
-       appointmentInfo.pdate,
-       appointmentInfo.ptime,
-       appointmentInfo.phours,
-       appointmentInfo.pproblem);
-} 
+  State<DoctorViewAppointment> createState() => _DoctorViewAppointmentState(
+      appointmentInfo.pname,
+      appointmentInfo.pdate,
+      appointmentInfo.ptime,
+      appointmentInfo.phours,
+      appointmentInfo.pproblem);
+}
 
 class _DoctorViewAppointmentState extends State<DoctorViewAppointment> {
   String pname;
@@ -75,17 +75,10 @@ class _DoctorViewAppointmentState extends State<DoctorViewAppointment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Card(
-        child: ListTile(
-          title: Text('Hey'),
-          subtitle: Text(
-              '$pname says hey at $ptime with $pproblem and $phours on $pdate'),
-          onTap: () async {
-            await viewDetails(context);
-          },
-        ),
-      ),
+    return FloatingActionButton(
+      onPressed: () {
+        viewDetails(context);
+      },
     );
   }
 }
