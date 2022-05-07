@@ -210,23 +210,56 @@ const userCtrl = {
 
   rating: async (req, res) => {
     try {
-      const { rating, comment, patient_id, doctor_id } = req.body;
+      const { rating, comment, accessToken, doctor_id, patientName } = req.body;
+
+      const gotUser = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN,
+        (err, decoded) => {
+          if (err) {
+            console.log(err);
+          }
+          return decoded;
+        }
+      );
+
       const feedback_info = new feedback({
         comment: comment,
         rating: rating,
-        patient_id: patient_id,
-        doctor_id: doctor_id,
+        patient_user_id: gotUser.userId,
+        doctor_user_id: doctor_id,
+        ptientName: patientName,
       });
-      const patient = await User.findOne({ patient_id });
-      const patient_name = patient.firstName;
       await feedback_info.save();
-      res.json({
-        patient_name,
-        comment,
-        rating,
-      });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  getFeedback: async (req, res) => {
+    try {
+      const { doctor_user_id } = req.body;
+      var user, feedbacks;
+      if (!doctor_user_id) {
+        const { accessToken } = req.body;
+        user = jwt.verify(
+          accessToken,
+          PROCESS.ENV.ACCESS_TOKEN,
+          (err, user) => {
+            if (err) console.log(err);
+            return user;
+          }
+        );
+        feedbacks = await feedback.find({ doctor_user_id: user.userId });
+      } else {
+        feedbacks = await feedback.find({ doctor_user_id: doctor_user_id });
+      }
+
+      return res.json({
+        feedbacks,
+      });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
     }
   },
 };

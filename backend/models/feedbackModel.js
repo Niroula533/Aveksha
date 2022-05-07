@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const feedback = new mongoose.model({
+const feedback = new mongoose.Schema({
   comment: {
     type: String,
     required: true,
@@ -9,11 +9,12 @@ const feedback = new mongoose.model({
     type: Number,
     required: true,
   },
-  patient_id: {
+  patientName: String,
+  patient_user_id: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Patient",
   },
-  doctor_id: {
+  doctor_user_id: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Doctor",
   },
