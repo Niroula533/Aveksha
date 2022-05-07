@@ -20,10 +20,11 @@ class AppointMents {
   String patient_Name, problem, status, time;
   int hour;
   var date;
-  var doctor_id;
+  var doctor_id, id;
   AppointMents(
       {required this.patient_Name,
       required this.doctor_id,
+      required this.id,
       required this.date,
       required this.time,
       required this.hour,
@@ -47,6 +48,7 @@ class ListofAppointments extends GetxController {
     var response = await Dio().post(
         "http://10.0.2.2:3000/doctor/getAllAppointments",
         data: {"accessToken": accessToken, "role": Get.find<UserInfo>().role});
+        
     ownAppointments.value = response.data
         .map<AppointMents>((value) => AppointMents(
               patient_Name: value['patient_Name'],
@@ -56,18 +58,30 @@ class ListofAppointments extends GetxController {
               hour: value['hour'],
               problem: value['problem'],
               status: value['status'],
+              id: value['_id']
             ))
         .toList();
   }
 
-  Future getAppointments({required id, required role}) async {
+  Future updateAppointments({id, required status, required index}) async {
+    var response = await Dio().put(
+        "http://10.0.2.2:3000/doctor/updateAppointments",
+        data: {"id": id, "status": status});
+    // print(status);
+    appointments[index].status = status;
+    appointments.refresh();
+    print(appointments[index]);
+  }
+
+  Future getAppointments({id, required role, accessToken}) async {
     // var url = "http://10.0.2.2:3000/doctor/$id";
     var response = await Dio().post(
         "http://10.0.2.2:3000/doctor/getAllAppointments",
-        data: {"id": id, "role": role});
+        data: {"id": id, "role": role, "accessToken": accessToken});
 
     appointments.value = response.data
         .map<AppointMents>((value) => AppointMents(
+              id: value['_id'],
               patient_Name: value['patient_Name'],
               doctor_id: value['doctor_id'],
               date: value['date'],

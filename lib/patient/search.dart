@@ -24,6 +24,13 @@ class _PatientSearchState extends State<PatientSearch> {
   // for clearing the textfield when tapped outside
   TextEditingController _controller = TextEditingController();
 
+  @override
+  void initState() {
+    Get.put(ListofAppointments());
+    super.initState();
+
+  }
+
   updateFilteredList() {
     setState(() {
       filteredList = fooList;

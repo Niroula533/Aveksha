@@ -38,7 +38,7 @@ class _PatientMainPageState extends State<PatientMainPage> {
   // void onClickedNotification(String? payload) => Navigator.of(context)
   //     .pushNamedAndRemoveUntil('/patientMain', (Route<dynamic> route) => false);
 
-  updateIndex({required int index, String? specialization}) async {
+  updateIndex({bool? isDoctor, required int index, String? specialization}) async {
     await allDocLab.getDoctors();
     setState(() {
       if (specialization != null) {
@@ -46,7 +46,7 @@ class _PatientMainPageState extends State<PatientMainPage> {
           MaterialPageRoute<void>(
               builder: (BuildContext context) => Speciality_Doctor(
                     specialization: specialization,
-                    isDoctor: true,
+                    isDoctor: isDoctor!,
                   )),
         );
       } else {

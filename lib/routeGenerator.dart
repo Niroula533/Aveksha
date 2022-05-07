@@ -2,6 +2,7 @@
 import 'package:aveksha/comp/patient_doctor_view.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
 import 'package:aveksha/controllers/userControl.dart';
+import 'package:aveksha/doctorviewappointment.dart';
 import 'package:aveksha/patient/mainPage.dart';
 import 'package:aveksha/patient/patientRegistrationPage.dart';
 import 'package:aveksha/patient/search.dart';
@@ -48,6 +49,11 @@ class RouteGenerator {
       case '/appointment':
         DocOrLab serviceProvider = settings.arguments as DocOrLab;
         return MaterialPageRoute(builder: (_) => AppointmentRequest(serviceProvider: serviceProvider,));
+      case '/doctorviewappointment':
+        appointmentInfo = settings.arguments as AppointmentDetails;
+        return MaterialPageRoute(
+            builder: (_) =>
+                DoctorViewAppointment(appointmentInfo: appointmentInfo));
       case '/labAppointmentRequest':
         return MaterialPageRoute(builder: (_) => ReqLabAppointment());
       case '/labtech':

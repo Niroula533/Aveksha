@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unrelated_type_equality_checks, prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unrelated_type_equality_checks, prefer_typing_uninitialized_variables, no_logic_in_create_state
 
 import 'dart:ui';
 
@@ -29,17 +29,15 @@ class AppointmentRequest extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<AppointmentRequest> createState() => _AppointmentRequestState();
+  State<AppointmentRequest> createState() => _AppointmentRequestState(
+      );
 }
 
 class _AppointmentRequestState extends State<AppointmentRequest> {
-  // _patientName for name
-  // _pickedDate for date picked in
-  // _pickedTime for time picked in TimeOFDate. Example: 19:30, 7:30
-  // _pickedHour for number of hours picked Example: 0.5,1,1.5,2
-  // _problem for specifying problem faced
 
-  final TextEditingController _patientName = TextEditingController();
+  _AppointmentRequestState(
+      {Key? key,  });
+
   final TextEditingController _pickedDate = TextEditingController();
   final TextEditingController _problem = TextEditingController();
 
@@ -47,7 +45,6 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
   void dispose() {
     _problem.dispose();
     _pickedDate.dispose();
-    _patientName.dispose();
     super.dispose();
   }
 
@@ -109,7 +106,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            icon: Icon(Icons.backspace)),
+            icon: Icon(Icons.arrow_back)),
         title: Text('Request Appointment'),
       ),
       backgroundColor: Color(0xFFE1EBF1),
@@ -120,28 +117,11 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
             Padding(
               padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
               child: Text(
-                'Whom do you want to book appointment for?',
+                'Patient Name: '+Get.find<UserInfo>().firstName+" "+Get.find<UserInfo>().lastName,
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: TextFormField(
-                  controller: _patientName,
-                  decoration: InputDecoration(
-                    errorText: validate(_patientName.toString()),
-                    filled: true,
-                    fillColor: Colors.white,
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    labelText: 'Enter Name Here',
-                  )),
-            ),
-            Divider(),
+            Divider(thickness: 2,),
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Text(
@@ -226,7 +206,9 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  _pickedTime != null?_pickedTime!:'Time',
+                                   (_pickedTime != null)
+                                   ? _pickedTime!.toString()
+                                   :'Time',
                                   style: TextStyle(
                                       color: Colors.black.withOpacity(0.60),
                                       fontSize: 16),
@@ -264,7 +246,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                 )
               ],
             ),
-            Divider(),
+            Divider(thickness: 2,),
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Text(
@@ -307,7 +289,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                       "date": _pickedDate.text,
                       "time": _pickedTime,
                       "problem": _problem.text,
-                      "patient_Name": Get.find<UserInfo>().firstName,
+                      "patient_Name": Get.find<UserInfo>().firstName + " " +Get.find<UserInfo>().lastName ,
                     };
                     var response = await Dio().post(
                         'http://10.0.2.2:3000/doctor/addAppointment',

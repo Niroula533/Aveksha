@@ -11,7 +11,8 @@ class UserInfo extends GetxController {
   bool confirmed = false;
   int role = -1, phone = 0, nmc = 0;
   updateInfo(
-      {firstName,
+      {
+      firstName,
       lastName,
       email,
       phone,

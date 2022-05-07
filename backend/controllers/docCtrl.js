@@ -1,10 +1,66 @@
 const Doctors = require("../models/doctorModel");
+const Patient = require("../models/patientModel");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const LabTech = require("../models/labTechnicianModel");
 const Appointments = require("../models/appointmentModel");
-const jwt = require('jsonwebtoken')
 
 const docCtrl = {
+  updateAppointments: async (req, res) => {
+    try {
+      const { id, status } = req.body;
+      await Appointments.findByIdAndUpdate(id, { $set: { status: status } });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  getAllAppointments: async (req, res) => {
+    try {
+      var user;
+      const { id, role } = req.body;
+      if (!id) {
+        const { accessToken } = req.body;
+        const gotUser = jwt.verify(
+          accessToken,
+          process.env.ACCESS_TOKEN,
+          (err, decoded) => {
+            if (err) {
+              console.log(err);
+            }
+            return decoded;
+          }
+        );
+        if (role == 0) {
+          user = await Patient.findOne({ user_id: gotUser.userId });
+          console.log("no", user);
+        } else if (role == 1) {
+          user = await Doctors.findOne({ user_id: gotUser.userId });
+        } else {
+          user = await LabTech.findOne({ user_id: gotUser.userId });
+        }
+      } else {
+        if (role == 0) {
+          user = await Patient.findOne({ user_id: id });
+        } else if (role == 1) {
+          user = await Doctors.findOne({ user_id: id });
+        } else {
+          user = await LabTech.findOne({ user_id: id });
+        }
+      }
+
+      var appointments;
+      if (role == 1 || role == 2) {
+        appointments = await Appointments.find({ doctor_id: user.user_id });
+      } else {
+        appointments = await Appointments.find({ patient_id: user.user_id });
+      }
+      return res.json(appointments);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
   getAll: async (req, res) => {
     try {
       const users = await User.find(
@@ -57,54 +113,10 @@ const docCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
-  getAllAppointments: async (req, res) => {
-    try {
-      var user;
-      const { id, role } = req.body;
-      console.log(id, role);
-      if (!id) {
-        const { accessToken } = req.body;
-        const gotUser = jwt.verify(
-          accessToken,
-          process.env.ACCESS_TOKEN,
-          (err, decoded) => {
-            if (err) {
-              console.log(err);
-            }
-            return decoded;
-          }
-        );
-        if (role == 0) {
-          user = await Patient.findOne({ user_id: gotUser.userId });
-        } else if (role == 1) {
-          user = await Doctors.findOne({ user_id: gotUser.userId });
-        } else {
-          user = await LabTech.findOne({ user_id: gotUser.userId });
-        }
-      } else {
-        if (role == 0) {
-          user = await Patient.findOne({ user_id: id });
-        } else if (role == 1) {
-          user = await Doctors.findOne({ user_id: id });
-        } else {
-          user = await LabTech.findOne({ user_id: id });
-        }
-      }
-      var appointments;
-      if(role == 1|| role == 2){
-        appointments = await Appointments.find({ doctor_id: user.user_id });
-      } else{
-        appointments = await Appointments.find({ patient_id: user.user_id });
-      }
-      return res.json(appointments);
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
+
   addAppointments: async (req, res) => {
     try {
       const { accessToken, doctorId, requestAppointment } = req.body;
-      console.log(doctor_id);
       const user = jwt.verify(
         accessToken,
         process.env.ACCESS_TOKEN,
