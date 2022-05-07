@@ -12,7 +12,8 @@ class UserInfo extends GetxController {
   int role = -1, phone = 0, nmc = 0;
   List booked = [];
   updateInfo(
-      {firstName,
+      {
+      firstName,
       lastName,
       email,
       phone,

@@ -113,7 +113,11 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 50, 156, 146),
-        leading: Icon(Icons.arrow_back_ios),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back_ios)),
         title: Text('Request Lab Appointment'),
       ),
       backgroundColor: Color.fromARGB(255, 221, 230, 229),
@@ -267,7 +271,7 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
                       });
                       //print(_pickedHours);
                     },
-                    items: <String>['Blood Test', 'Sugar Test']
+                    items: <String>['Blood Test']
                         .map<DropdownMenuItem<String>>((var value) {
                       return DropdownMenuItem<String>(
                           value: value, child: Text(value));

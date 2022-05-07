@@ -1,7 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unrelated_type_equality_checks, prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unrelated_type_equality_checks, prefer_typing_uninitialized_variables, no_logic_in_create_state
 
 import 'dart:ui';
 
+import 'package:aveksha/comp/patient_doctor_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -18,10 +19,13 @@ class AppointmentDetails {
 }
 
 class AppointmentRequest extends StatefulWidget {
-  const AppointmentRequest({Key? key}) : super(key: key);
+  AppointmentDet appointmentDetails;
+  AppointmentRequest({Key? key, required this.appointmentDetails})
+      : super(key: key);
 
   @override
-  State<AppointmentRequest> createState() => _AppointmentRequestState();
+  State<AppointmentRequest> createState() => _AppointmentRequestState(
+      doctorId: appointmentDetails.docID, patientName: appointmentDetails.patientName);
 }
 
 class _AppointmentRequestState extends State<AppointmentRequest> {
@@ -30,8 +34,11 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
   // _pickedTime for time picked in TimeOFDate. Example: 19:30, 7:30
   // _pickedHour for number of hours picked Example: 0.5,1,1.5,2
   // _problem for specifying problem faced
+  String patientName;
+  String doctorId;
+  _AppointmentRequestState(
+      {Key? key, required this.doctorId, required this.patientName});
 
-  final TextEditingController _patientName = TextEditingController();
   final TextEditingController _pickedDate = TextEditingController();
   final TextEditingController _problem = TextEditingController();
 
@@ -39,7 +46,6 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
   void dispose() {
     _problem.dispose();
     _pickedDate.dispose();
-    _patientName.dispose();
     super.dispose();
   }
 
@@ -98,7 +104,11 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 17, 119, 121),
-        leading: Icon(Icons.backspace),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back)),
         title: Text('Request Appointment'),
       ),
       backgroundColor: Color.fromARGB(255, 183, 222, 222),
@@ -109,28 +119,11 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
             Padding(
               padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
               child: Text(
-                'Whom do you want to book appointment for?',
+                'Patient Name: $patientName',
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: TextFormField(
-                  controller: _patientName,
-                  decoration: InputDecoration(
-                    errorText: validate(_patientName.toString()),
-                    filled: true,
-                    fillColor: Colors.white,
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    labelText: 'Enter Name Here',
-                  )),
-            ),
-            Divider(),
+            Divider(thickness: 2,),
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Text(
@@ -177,7 +170,8 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                                   context: context,
                                   initialDate: DateTime.now(),
                                   firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(Duration(days: 7)))
+                                  lastDate:
+                                      DateTime.now().add(Duration(days: 7)))
                               .then((date) {
                             setState(() {
                               _dateTime = date;
@@ -214,7 +208,9 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'Time',
+                                   (_pickedTime != null)
+                                   ? _pickedTime!.format(context)
+                                   :'Time',
                                   style: TextStyle(
                                       color: Colors.black.withOpacity(0.60),
                                       fontSize: 16),
@@ -252,7 +248,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                 )
               ],
             ),
-            Divider(),
+            Divider(thickness: 2,),
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Text(
@@ -288,10 +284,16 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed('/doctorviewappointment',
-                         arguments: AppointmentDetails(_patientName.text,
-                             _pickedDate.text, _pickedTime!, _pickedHours, _problem.text));
-                
+                    
+
+
+                    // Navigator.of(context).pushNamed('/doctorviewappointment',
+                    //     arguments: AppointmentDetails(
+                    //         patientName,
+                    //         _pickedDate.text,
+                    //         _pickedTime!,
+                    //         _pickedHours,
+                    //         _problem.text));
                   },
                   child: Text("Book")),
             ),

@@ -26,7 +26,9 @@ class _PatientSearchState extends State<PatientSearch> {
 
   @override
   void initState() {
+    Get.put(ListofAppointments());
     super.initState();
+
   }
 
   updateFilteredList() {

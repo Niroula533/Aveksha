@@ -49,7 +49,8 @@ class RouteGenerator {
       case '/doctorMain':
         return MaterialPageRoute(builder: (_) => DoctorMainPage());
       case '/appointment':
-        return MaterialPageRoute(builder: (_) => AppointmentRequest());
+        AppointmentDet appointmentDetails = settings.arguments as AppointmentDet;
+        return MaterialPageRoute(builder: (_) => AppointmentRequest(appointmentDetails: appointmentDetails));
       case '/doctorviewappointment':
         appointmentInfo = settings.arguments as AppointmentDetails;
         return MaterialPageRoute(

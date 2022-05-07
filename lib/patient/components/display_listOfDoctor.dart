@@ -24,6 +24,12 @@ class Speciality_Doctor extends StatefulWidget {
 
 class _Speciality_DoctorState extends State<Speciality_Doctor> {
   @override
+  void initState() {
+   // print(Get.find<ListOfDoctorsAndLabtech>().labTechs[0].firstName);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var specializedDoctorsOrTechnicians = widget.isDoctor
         ? Get.find<ListOfDoctorsAndLabtech>()
@@ -91,11 +97,13 @@ class _Speciality_DoctorState extends State<Speciality_Doctor> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: specializedDoctorsOrTechnicians.length,
-                itemBuilder: (BuildContext ctxt, int index) {
+                itemBuilder: (BuildContext context, int index) {
+                  print(specializedDoctorsOrTechnicians[index].firstName);
                   return InkWell(
-                    onTap: () => Navigator.of(context).pushNamed(
-                        '/patientToOther',
-                        arguments: specializedDoctorsOrTechnicians[index]),
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/patientToOther',
+                          arguments: specializedDoctorsOrTechnicians[index]);
+                    },
                     child: Card(
                       child: Column(
                         children: <Widget>[

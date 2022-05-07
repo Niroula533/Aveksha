@@ -41,6 +41,7 @@ class _SpecialitiesState extends State<Specialities> {
               return InkWell(
                 onTap: () {
                   widget.updateIndex(
+                    isDoctor: true,
                       index: 3,
                       specialization: controller.doctors[index].speciality);
                 },
@@ -96,6 +97,7 @@ class _SpecialitiesState extends State<Specialities> {
               return InkWell(
                 onTap: () {
                   widget.updateIndex(
+                    isDoctor: false,
                       index: 3,
                       specialization: controller.labTechs[index].speciality);
                 },
