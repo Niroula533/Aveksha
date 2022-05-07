@@ -182,18 +182,6 @@ class _PatientHomeState extends State<PatientHome> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.04,
                 ),
-                // Column(
-                //   crossAxisAlignment: CrossAxisAlignment.center,
-                //   children: const [
-                //     Text("Sushant Adhikari, 21"),
-                //     Text("Dhulikhel, Kavre"),
-                //     Text("sushantadhikari2001@gmail.com"),
-                //     Text("+977 9815167761"),
-                //   ],
-                // ),
-                // SizedBox(
-                //   height: MediaQuery.of(context).size.height * 0.04,
-                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

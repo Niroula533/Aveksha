@@ -299,7 +299,7 @@ const userCtrl = {
       await reminders.save();
       return res.json({
         msg: "Reminder added successfully!",
-        id: reminder._id,
+        id: reminders._id,
       });
     } catch (err) {
       console.log(err);
@@ -322,7 +322,11 @@ const userCtrl = {
                   return res
                     .status(400)
                     .json({ msg: "Invalid authentication" });
-                const accesstoken = createAccessToken(user);
+                const accesstoken = (accesstoken = createAccessToken({
+                  userId: user.userId,
+                  role: user.role,
+                  id: user.id,
+                }));
                 return { ...user, accesstoken };
               }
             );
@@ -344,6 +348,27 @@ const userCtrl = {
       await Reminder.findByIdAndDelete(reminderId);
       return res.json({ msg: "Reminder deleted successfully!" });
     } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  updateReminder: async (req, res) => {
+    try {
+      const { reminderId, doseIndex, changedPrevious } = req.body;
+      var reminder = await Reminder.findById(reminderId);
+      var doseTime = reminder.doseTime;
+      if (reminder.doseTime.length - 1 == doseIndex) {
+        doseTime = reminder.doseTime.map((value) => {
+          value.isTaken = 1;
+          return value;
+        });
+      } else {
+        reminder.doseTime[doseIndex].isTaken = 1;
+        if (changedPrevious) reminder.doseTime[doseIndex - 1].isTaken = -1;
+        doseTime = reminder.doseTime;
+      }
+      await Reminder.findByIdAndUpdate(reminderId, { doseTime: doseTime });
+    } catch (err) {
+      console.log(err.message);
       return res.status(500).json({ msg: err.message });
     }
   },

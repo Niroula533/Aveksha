@@ -1,4 +1,5 @@
 import 'package:aveksha/controllers/userControl.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'
     hide Options;
 import 'package:dio/dio.dart';
@@ -28,6 +29,8 @@ Future<dynamic> handleRegister(
   try {
     final storage = FlutterSecureStorage();
     List<String> name = fullName.split(' ');
+    await FirebaseMessaging.instance.subscribeToTopic(contact.toString());
+
     var response;
     if (role == 0) {
       response = await Dio().post('http://10.0.2.2:3000/user/register', data: {
@@ -39,7 +42,7 @@ Future<dynamic> handleRegister(
         'role': role,
         'address': address,
         'DOB': pickedDate,
-        'gender': gender,
+        'gender': gender
       }, options: Options(
         validateStatus: (status) {
           return num.parse(status.toString()).toInt() < 500;

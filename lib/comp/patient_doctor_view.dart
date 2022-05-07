@@ -1,5 +1,6 @@
 import 'package:aveksha/comp/navigation_bar.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../patient/components/tab_component.dart';
 
@@ -126,7 +127,9 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                         backgroundColor:
                             MaterialStateProperty.all<Color>(Color(0xFF60BBFE)),
                       ),
-                      onPressed: null,
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/appointment', arguments: widget.serviceProvider);
+                      },
                       child: Text(
                         'Request Appointment',
                         style: TextStyle(
@@ -143,3 +146,7 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
     );
   }
 }
+
+
+// to send notification 
+// IMP

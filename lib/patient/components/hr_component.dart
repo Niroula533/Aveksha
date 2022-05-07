@@ -64,13 +64,16 @@ Future<void> addHealthRecords(
                     _file,
                     TextButton(
                         onPressed: () async {
-                          file = await FilePicker.platform.pickFiles();
+                          file = await FilePicker.platform
+                              .pickFiles(allowMultiple: false);
+                          // a.files;
                           if (file == null) {
                             _file = Text("No File Selected!");
                             return;
                           } else {
-                            setState(() => _file = buildFile(
-                                file, MediaQuery.of(context).size.width * 0.3));
+                            file = File(file.files.first.path);
+                            setState(() => _file = buildFile(file,
+                                MediaQuery.of(context).size.width * 0.3));
                           }
                         },
                         child: Padding(
@@ -243,7 +246,9 @@ Widget searchHealthRecords(BuildContext context,
                   ),
                 ],
               ),
-              SizedBox(height: 15,),
+              SizedBox(
+                height: 15,
+              ),
               // ClipRRect(
               //   borderRadius: BorderRadius.circular(14),
               //   child: TextButton(

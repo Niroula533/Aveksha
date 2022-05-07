@@ -19,11 +19,11 @@ class _DoctorHomeState extends State<DoctorHome> {
 
   List<Widget> appointmentRequests = [
     AppointmentRequest(patientName: "Mr. Ayush", dateTime: "30-Apr 2022, 04:30"),
-    AppointmentRequest(patientName: "Mr. Ankush", dateTime: "20-Apr 2022, 01:30")
+    // AppointmentRequest(patientName: "Mr. Ankush", dateTime: "20-Apr 2022, 01:30")
   ];
   List<Widget> scheduledAppointments = [
     ScheduledAppoinements(patientName: "Mr. Jackie", dateTime: "14-Apr 2022, 11:30"),
-    ScheduledAppoinements(patientName: "Mr. Sushant", dateTime: "13-Apr 2022, 10:00"),
+    // ScheduledAppoinements(patientName: "Mr. Sushant", dateTime: "13-Apr 2022, 10:00"),
   ];
 
   updateTab(index) {
@@ -160,10 +160,10 @@ class _DoctorHomeState extends State<DoctorHome> {
                 // ...prevAppointments
               ],
             ),
-          if (scheduleActive) Container(),
-          FloatingActionButton(onPressed: (){
+          // if (scheduleActive) Container(),
+          // FloatingActionButton(onPressed: (){
             
-          })
+          // })
         ],
       ),
     );

@@ -1,5 +1,5 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'
-    hide Options;
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,12 +25,15 @@ Future<dynamic> handleLogin(
     }
     var user = response.data['user']['user'];
     var roledUser = response.data['user']['roledUser'];
+    print(user);
+    await FirebaseMessaging.instance.subscribeToTopic(user['phone'].toString());
+
     if (user['role'] == 0) {
       Get.find<UserInfo>().updateInfo(
           firstName: user['firstName'],
           lastName: user['lastName'],
           email: user['email'],
-          phone: user['contact'],
+          phone: user['phone'],
           role: user['role'],
           address: user['address'],
           dob: roledUser['pickedDate'],
@@ -41,11 +44,10 @@ Future<dynamic> handleLogin(
           firstName: user['firstName'],
           lastName: user['lastName'],
           email: user['email'],
-          phone: user['contact'],
+          phone: user['phone'],
           role: user['role'],
           address: user['address'],
           nmc: roledUser['nmc'],
-          booked: roledUser['booked'],
           speciality: roledUser['speciality'],
           confirmed: user["confirmed"]);
     } else {
@@ -53,7 +55,7 @@ Future<dynamic> handleLogin(
           firstName: user['firstName'],
           lastName: user['lastName'],
           email: user['email'],
-          phone: user['contact'],
+          phone: user['phone'],
           role: user['role'],
           address: user['address'],
           speciality: roledUser['speciality'],
@@ -75,23 +77,6 @@ Future<dynamic> handleLogin(
           (Route<dynamic> route) => false); // NOTE: should be /labtechMain
     }
     return '';
-
-    // return showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return AlertDialog(
-    //         title: Text("Login unsuccessfull!"),
-    //         content: Text(h),
-    //         actions: <Widget>[
-    //           TextButton(
-    //               onPressed: () => Navigator.of(context).pop(),
-    //               child: Text("Retry")),
-    //           TextButton(
-    //               onPressed: () => Navigator.of(context).pushNamed('/login'),
-    //               child: Text("LogIn"))
-    //         ],
-    //       );
-    //     });
   } catch (e) {
     print(e);
     return e.toString();

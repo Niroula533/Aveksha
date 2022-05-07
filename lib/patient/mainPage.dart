@@ -1,7 +1,11 @@
 import 'package:aveksha/apis/flutter_notifications.dart';
+import 'package:aveksha/comp/meeting.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:aveksha/controllers/reminderControl.dart';
+import 'package:aveksha/controllers/userControl.dart';
 import 'package:aveksha/patient/components/display_listOfDoctor.dart';
 import 'package:aveksha/patient/search.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'home.dart';
@@ -16,31 +20,32 @@ class PatientMainPage extends StatefulWidget {
 
 class _PatientMainPageState extends State<PatientMainPage> {
   int _currentIndex = 0;
-  String? _specialization = "General Physician";
   var allDocLab = Get.put(ListOfDoctorsAndLabtech());
 
   @override
   void initState() {
     super.initState();
+    Get.put(ListofAppointments());
     NotificationApi.init(initScheduled: true);
-    listenNotifications();
+    // listenNotification();
   }
 
-  void listenNotifications() =>
-      NotificationApi.onNotifications.stream.listen(onClickedNotification);
+  
 
-  void onClickedNotification(String? payload) => Navigator.of(context)
-      .pushNamedAndRemoveUntil('/patientMain', (Route<dynamic> route) => false);
+  // void listenNotifications() =>
+  //     NotificationApi.onNotifications.stream.listen(onClickedNotification);
+
+  // void onClickedNotification(String? payload) => Navigator.of(context)
+  //     .pushNamedAndRemoveUntil('/patientMain', (Route<dynamic> route) => false);
 
   updateIndex({required int index, String? specialization}) async {
     await allDocLab.getDoctors();
     setState(() {
       if (specialization != null) {
-        _specialization = specialization;
         Navigator.of(context).push(
           MaterialPageRoute<void>(
               builder: (BuildContext context) => Speciality_Doctor(
-                    specialization: _specialization!,
+                    specialization: specialization,
                     isDoctor: true,
                   )),
         );
@@ -50,7 +55,13 @@ class _PatientMainPageState extends State<PatientMainPage> {
     });
   }
 
-  goToLogin() {
+  goToLogin() async {
+    try {
+      await FirebaseMessaging.instance
+          .unsubscribeFromTopic(Get.find<UserInfo>().phone.toString());
+    } catch (e) {
+      print(e);
+    }
     return Navigator.of(context)
         .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
   }
@@ -62,12 +73,7 @@ class _PatientMainPageState extends State<PatientMainPage> {
       PatientSearch(
         updateIndex: updateIndex,
       ),
-      Center(
-        child: Text("Message"),
-      )
-      // Center(
-      //   child: Text("MedFeed"),
-      // )
+      Meeting()
     ];
     return Scaffold(
       body: pages[_currentIndex],

@@ -1,15 +1,83 @@
+import 'package:aveksha/controllers/userControl.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 class DocOrLab {
-  final String firstName, hospital, speciality;
-  final id, role;
+  final String firstName, hospital, speciality, email;
+  final id, role, phone;
   DocOrLab(
       {required this.firstName,
+      required this.email,
       required this.hospital,
       required this.speciality,
       required this.id,
-      required this.role});
+      required this.role,
+      required this.phone});
+}
+
+class AppointMents {
+  String patient_Name, problem, status, time;
+  int hour;
+  var date;
+  var doctor_id;
+  AppointMents(
+      {required this.patient_Name,
+      required this.doctor_id,
+      required this.date,
+      required this.time,
+      required this.hour,
+      required this.problem,
+      required this.status});
+}
+
+class ListofAppointments extends GetxController {
+  var appointments = <AppointMents>[].obs;
+  var ownAppointments = <AppointMents>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getOwnAppointments();
+  }
+
+  Future getOwnAppointments() async {
+    var storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: "accessToken");
+    var response = await Dio().post(
+        "http://10.0.2.2:3000/doctor/getAllAppointments",
+        data: {"accessToken": accessToken, "role": Get.find<UserInfo>().role});
+    ownAppointments.value = response.data
+        .map<AppointMents>((value) => AppointMents(
+              patient_Name: value['patient_Name'],
+              doctor_id: value['doctor_id'],
+              date: value['date'],
+              time: value['time'],
+              hour: value['hour'],
+              problem: value['problem'],
+              status: value['status'],
+            ))
+        .toList();
+  }
+
+  Future getAppointments({required id, required role}) async {
+    // var url = "http://10.0.2.2:3000/doctor/$id";
+    var response = await Dio().post(
+        "http://10.0.2.2:3000/doctor/getAllAppointments",
+        data: {"id": id, "role": role});
+
+    appointments.value = response.data
+        .map<AppointMents>((value) => AppointMents(
+              patient_Name: value['patient_Name'],
+              doctor_id: value['doctor_id'],
+              date: value['date'],
+              time: value['time'],
+              hour: value['hour'],
+              problem: value['problem'],
+              status: value['status'],
+            ))
+        .toList();
+  }
 }
 
 class ListOfDoctorsAndLabtech extends GetxController {
@@ -24,15 +92,25 @@ class ListOfDoctorsAndLabtech extends GetxController {
 
   Future getDoctors() async {
     var response = await Dio().get("http://10.0.2.2:3000/doctor");
-    doctors.value = response.data['doctors'].map<DocOrLab>((value) => DocOrLab(
-        firstName: value['firstName'],
-        hospital: value['hospital'],
-        speciality: value['speciality'],
-        id: value['userId'], role: 1)).toList();
-    labTechs.value = response.data['labTechs'].map<DocOrLab>((value) => DocOrLab(
-        firstName: value['firstName'],
-        hospital: value['hospital'],
-        speciality: value['speciality'],
-        id: value['userId'], role: 2)).toList();
+    doctors.value = response.data['doctors']
+        .map<DocOrLab>((value) => DocOrLab(
+            firstName: value['firstName'],
+            email: value['email'],
+            phone: value['phone'],
+            hospital: value['hospital'],
+            speciality: value['speciality'],
+            id: value['userId'],
+            role: 1))
+        .toList();
+    labTechs.value = response.data['labTechs']
+        .map<DocOrLab>((value) => DocOrLab(
+            firstName: value['firstName'],
+            email: value['email'],
+            phone: value['phone'],
+            hospital: value['hospital'],
+            speciality: value['speciality'],
+            id: value['userId'],
+            role: 2))
+        .toList();
   }
 }

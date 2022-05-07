@@ -54,6 +54,7 @@ dependencies:
   flutter_native_timezone: ^2.0.0
   firebase_core: ^1.15.0
   firebase_messaging: ^11.2.15
+  jitsi_meet: ^4.0.0
 
 
 dev_dependencies:

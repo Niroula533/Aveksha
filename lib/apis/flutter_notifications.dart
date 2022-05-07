@@ -1,4 +1,5 @@
 import 'package:aveksha/controllers/userControl.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -9,11 +10,16 @@ import 'package:get/get.dart';
 class NotificationApi {
   static final _notifications = FlutterLocalNotificationsPlugin();
   static final onNotifications = BehaviorSubject<String?>();
+  static const firebaseServerKey =
+      "AAAAMVFqWSo:APA91bEdYWsRvxsYBOTzcq1TOYsAdMk0wrKPkiE8k3wrz5_oktpgBIjLQGCdoDx91W1GUxvlqyU1-UXYsrtmCp0pvaY4O4SnaMylXyykBVUkTqzrVvP75TIMP7XcbUlMOfO86icI4c5h";
 
   Future _notificationDetails() async {
     return NotificationDetails(
-      android: AndroidNotificationDetails("aveksha", "aveksha",
-          importance: Importance.max),
+      android: AndroidNotificationDetails(
+        "aveksha",
+        "aveksha",
+        importance: Importance.max,
+      ),
       iOS: IOSNotificationDetails(),
     );
   }
@@ -44,7 +50,7 @@ class NotificationApi {
   }
 
   Future showNotification({
-    int id = 0,
+    int id = 99,
     String? title,
     String? body,
     String? payload,
@@ -73,5 +79,16 @@ class NotificationApi {
     return scheduledDate.isBefore(now)
         ? scheduledDate.add(Duration(days: 1))
         : scheduledDate;
+  }
+
+  Future sendRemote(
+      {required String title,
+      required String body,
+      required String topic}) async {await Dio().post('https://fcm.googleapis.com/fcm/send',
+        options: Options(headers: {"Authorization": "key=$firebaseServerKey"}),
+        data: {
+          "to": "/topics/$topic",
+          "notification": {"title": title, "body": body}
+        });
   }
 }

@@ -2,8 +2,14 @@
 
 import 'dart:ui';
 
+import 'package:aveksha/apis/flutter_notifications.dart';
+import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:aveksha/controllers/userControl.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
 
@@ -18,7 +24,9 @@ class AppointmentDetails {
 }
 
 class AppointmentRequest extends StatefulWidget {
-  const AppointmentRequest({Key? key}) : super(key: key);
+  final DocOrLab serviceProvider;
+  const AppointmentRequest({Key? key, required this.serviceProvider})
+      : super(key: key);
 
   @override
   State<AppointmentRequest> createState() => _AppointmentRequestState();
@@ -44,7 +52,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
   }
 
   DateTime _time = DateTime.now();
-  TimeOfDay? _pickedTime;
+  String? _pickedTime;
 
   Future<void> viewTime(BuildContext context) async {
     return await showDialog(
@@ -67,8 +75,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             onDateTimeChanged: (DateTime dateTime) {
                               setState(() {
                                 _time = dateTime;
-                                _pickedTime = TimeOfDay.fromDateTime(
-                                    DateTime.parse('$_time'));
+                                _pickedTime = DateFormat.Hm().format(_time);
                               });
                             }),
                       ),
@@ -97,11 +104,15 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 17, 119, 121),
-        leading: Icon(Icons.backspace),
+        backgroundColor: Color(0xFF60BBFE),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.backspace)),
         title: Text('Request Appointment'),
       ),
-      backgroundColor: Color.fromARGB(255, 183, 222, 222),
+      backgroundColor: Color(0xFFE1EBF1),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +188,8 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                                   context: context,
                                   initialDate: DateTime.now(),
                                   firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(Duration(days: 7)))
+                                  lastDate:
+                                      DateTime.now().add(Duration(days: 7)))
                               .then((date) {
                             setState(() {
                               _dateTime = date;
@@ -214,7 +226,7 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'Time',
+                                  _pickedTime != null?_pickedTime!:'Time',
                                   style: TextStyle(
                                       color: Colors.black.withOpacity(0.60),
                                       fontSize: 16),
@@ -287,31 +299,30 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/doctorviewappointment',
-                         arguments: AppointmentDetails(_patientName.text,
-                             _pickedDate.text, _pickedTime!, _pickedHours, _problem.text));
-                
+                  onPressed: () async {
+                    var storage = FlutterSecureStorage();
+                    final accessToken = await storage.read(key: 'accessToken');
+                    var requestAppointment = {
+                      "status": "Pending",
+                      "date": _pickedDate.text,
+                      "time": _pickedTime,
+                      "problem": _problem.text,
+                      "patient_Name": Get.find<UserInfo>().firstName,
+                    };
+                    var response = await Dio().post(
+                        'http://10.0.2.2:3000/doctor/addAppointment',
+                        data: {
+                          "accessToken": accessToken,
+                          "doctorId": widget.serviceProvider.id,
+                          "requestAppointment": requestAppointment
+                        });
+                    await NotificationApi().sendRemote(
+                        title: "Appointment Request",
+                        body: "You have new appointment request",
+                        topic: widget.serviceProvider.phone.toString());
                   },
                   child: Text("Book")),
             ),
-            // Column(
-            //   children: [
-            //     SizedBox(
-            //       height: 100,
-            //       child: CupertinoDatePicker(
-            //           initialDateTime: _pickedTime
-            //               .add(Duration(minutes: 30 - _pickedTime.minute % 30)),
-            //           minuteInterval: 30,
-            //           mode: CupertinoDatePickerMode.time,
-            //           onDateTimeChanged: (dateTime) {
-            //             setState(() {
-            //               _pickedTime = dateTime;
-            //             });
-            //           }),
-            //     ),
-            //   ],
-            // )
           ],
         ),
       ),

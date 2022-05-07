@@ -2,22 +2,19 @@
 import 'package:aveksha/comp/patient_doctor_view.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
 import 'package:aveksha/controllers/userControl.dart';
-import 'package:aveksha/patient/components/display_listOfDoctor.dart';
-import 'package:aveksha/patient/components/display_specialities.dart';
 import 'package:aveksha/patient/mainPage.dart';
 import 'package:aveksha/patient/patientRegistrationPage.dart';
 import 'package:aveksha/patient/search.dart';
 import 'package:aveksha/doctor/doctorRegistrationPage.dart';
 import 'package:flutter/material.dart';
-import 'package:aveksha/firstPage.dart';
-import 'package:aveksha/loginPage.dart';
+import 'package:aveksha/comp/firstPage.dart';
+import 'package:aveksha/comp/loginPage.dart';
 import 'package:get/get.dart';
 import 'doctor/main_page.dart';
-import 'otpPage.dart';
+import 'comp/otpPage.dart';
 import 'package:aveksha/labTechs/acceptedLabTech.dart';
-import 'package:aveksha/appointment.dart';
+import 'package:aveksha/patient/appointment.dart';
 import 'package:aveksha/labTechs/bloodTest.dart';
-import 'package:aveksha/doctorviewappointment.dart';
 import 'package:aveksha/labTechs/labTestAppointment.dart';
 import 'package:aveksha/labTechs/labtech.dart';
 import 'package:aveksha/labTechs/pdfBloodTest.dart';
@@ -49,12 +46,8 @@ class RouteGenerator {
       case '/doctorMain':
         return MaterialPageRoute(builder: (_) => DoctorMainPage());
       case '/appointment':
-        return MaterialPageRoute(builder: (_) => AppointmentRequest());
-      case '/doctorviewappointment':
-        appointmentInfo = settings.arguments as AppointmentDetails;
-        return MaterialPageRoute(
-            builder: (_) =>
-                DoctorViewAppointment(appointmentInfo: appointmentInfo));
+        DocOrLab serviceProvider = settings.arguments as DocOrLab;
+        return MaterialPageRoute(builder: (_) => AppointmentRequest(serviceProvider: serviceProvider,));
       case '/labAppointmentRequest':
         return MaterialPageRoute(builder: (_) => ReqLabAppointment());
       case '/labtech':

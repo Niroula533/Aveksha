@@ -1,5 +1,8 @@
 import 'package:aveksha/doctor/feedBackPage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/userControl.dart';
 import './home.dart';
 import './doc_navigation_bar.dart';
 
@@ -19,7 +22,9 @@ class _DoctorMainPageState extends State<DoctorMainPage> {
     });
   }
 
-  goToLogin() {
+  goToLogin() async {
+    await FirebaseMessaging.instance
+        .unsubscribeFromTopic(Get.find<UserInfo>().phone.toString());
     return Navigator.of(context)
         .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
   }
@@ -34,9 +39,9 @@ class _DoctorMainPageState extends State<DoctorMainPage> {
       FeedBackPage(logout: goToLogin),
     ];
     return Scaffold(
-        body: pages[_currentIndex],
-        extendBody: true,
-        bottomNavigationBar: NavBar(updateIndex: updateIndex),
-      );
+      body: pages[_currentIndex],
+      extendBody: true,
+      bottomNavigationBar: NavBar(updateIndex: updateIndex),
+    );
   }
 }

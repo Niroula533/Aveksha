@@ -14,7 +14,6 @@ const Doctor = new mongoose.Schema({
       type: Object
   }],
   speciality:String,
-  booked:Array
 });
 
 module.exports = mongoose.model("Doctor", Doctor);

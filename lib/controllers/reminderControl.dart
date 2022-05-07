@@ -55,16 +55,12 @@ class AllReminders extends GetxController {
     }).toList();
   }
 
-  // addReminder({required Meds med, required id}) {
-  //   allMedicine.add(Medicine(med: med, id: id));
-  // }
-
   Future addReminder({
     required int timesPerDay,
     required DateTime dateTime,
     required String medName,
     required String dosage,
-    required BuildContext context,
+    required context,
   }) async {
     int interval = (24 / timesPerDay).truncate();
     var tempTime = dateTime;
@@ -84,17 +80,43 @@ class AllReminders extends GetxController {
     final accessToken = await storage.read(key: 'accessToken');
     var response = await Dio().post('http://10.0.2.2:3000/user/reminder',
         data: {'reminder': encodedMed, 'accessToken': accessToken});
+
     allMedicine.add(Medicine(med: med, id: response.data['id']));
+    allMedicine.refresh();
+    // AllReminders().update();
     for (int i = 0; i < allMedicine.last.med.doses.length; i++) {
-      NotificationApi().showScheduledNotification(
+      await NotificationApi().showScheduledNotification(
           scheduledDate: sortedTime[i],
           title: "Medicine Remind!",
           body: "Its time to take your medicine $medName.",
+          payload: "/patientMain " +
+              (allMedicine.length - 1).toString() +
+              " " +
+              i.toString() +
+              " " +
+              response.data['id'],
           id: (allMedicine.length - 1) * 6 + i);
     }
-    print(await NotificationApi.showNumbers());
+  }
+
+  updateReminder({
+    required reminderIndex,
+    required int doseIndex,
+    required reminderId,
+  }) async {
+    bool changedPrevious = false;
+    allMedicine[reminderIndex].med.doses[doseIndex].isTaken = 1;
+    if ((doseIndex - 1) != -1 &&
+        allMedicine[reminderIndex].med.doses[doseIndex - 1].isTaken == 0) {
+      allMedicine[reminderIndex].med.doses[doseIndex - 1].isTaken == -1;
+      changedPrevious = true;
+    }
+    await Dio().post('http://10.0.2.2:3000/user/updateReminder', data: {
+      "reminderId": reminderId,
+      "doseIndex": doseIndex,
+      "changedPrevious": changedPrevious
+    });
     allMedicine.refresh();
-    AllReminders().update();
   }
 
   delReminder({required id, required context}) async {
@@ -103,19 +125,17 @@ class AllReminders extends GetxController {
       int notificationId = index * 6 + i;
       await NotificationApi.unScheduleNotification(id: notificationId);
     }
-
+    print(id);
     String msg = await deleteReminder(id);
     allMedicine.removeWhere((element) => element.id == id);
+    allMedicine.refresh();
+    // AllReminders().update();
     if (msg.isNotEmpty) {
-      //   Get.showSnackbar(GetSnackBar(
-      //   message: "Deleted Successfully!",
-      // ));
       final snack = SnackBar(
         content: Text(msg),
       );
       return ScaffoldMessenger.of(context).showSnackBar(snack);
     }
-
-    print(await NotificationApi.showNumbers());
+    update();
   }
 }
