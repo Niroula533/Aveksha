@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
 import 'dart:ui';
+import 'package:aveksha/comp/conformer.dart';
 import 'package:aveksha/controllers/userControl.dart';
 import 'package:aveksha/doctor/components/scheduleLab.dart';
 import 'package:aveksha/doctor/main_page.dart';
@@ -213,6 +214,7 @@ class _DoctorHomeState extends State<DoctorHome> {
     ];
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    bool isConfirmed = Get.find<UserInfo>().confirmed;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
@@ -221,6 +223,7 @@ class _DoctorHomeState extends State<DoctorHome> {
             vertical: height * 0.05, horizontal: width * 0.04),
         child: Column(
           children: [
+            isConfirmed? Conformer():Container(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

@@ -20,16 +20,25 @@ Future<List> getHR() async {
 }
 
 Future<dynamic> addHR(
-    {required String title, required String date, required String url}) async {
-  final storage = FlutterSecureStorage();
-  var accessToken = await storage.read(key: 'accessToken');
-  var response = await Dio().post('http://10.0.2.2:3000/hr/add', data: {
-    "title": title,
-    "url": url,
-    "date": date,
-    "accessToken": accessToken
-  });
-  return response.data;
+    {required String title,
+    required String date,
+    required String url,
+    String? id}) async {
+  if (id != null) {
+    var response = await Dio().post('http://10.0.2.2:3000/hr/add',
+        data: {"title": title, "url": url, "date": date, "id": id});
+    return response.data;
+  } else {
+    final storage = FlutterSecureStorage();
+    var accessToken = await storage.read(key: 'accessToken');
+    var response = await Dio().post('http://10.0.2.2:3000/hr/add', data: {
+      "title": title,
+      "url": url,
+      "date": date,
+      "accessToken": accessToken
+    });
+    return response.data;
+  }
 }
 
 Future<String> delHR({required final id}) async {
@@ -154,7 +163,7 @@ class AllHR extends GetxController {
           // print(r);
           tempDate = allHRs[i]['date'];
           // r.clear();
-           r = [allHRs[i]];
+          r = [allHRs[i]];
           // print(r);
         } else {
           r.add(allHRs[i]);
@@ -168,6 +177,12 @@ class AllHR extends GetxController {
       allHr.value = [];
     }
   }
+
+  sendHr(
+      {required String title,
+      required String url,
+      required String date,
+      required String id}) async {}
 
   addHr(
       {required String title,

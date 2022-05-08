@@ -1,3 +1,4 @@
+import 'package:aveksha/comp/conformer.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
 import 'package:aveksha/controllers/hrControl.dart';
 import 'package:aveksha/controllers/reminderControl.dart';
@@ -67,6 +68,7 @@ class _PatientHomeState extends State<PatientHome> {
 
   @override
   Widget build(BuildContext context) {
+    bool isConfirmed = Get.find<UserInfo>().confirmed;
     TimeOfDay now = TimeOfDay.now();
     bool morning = now.hour > 4 && now.hour < 12;
     bool afternoon = now.hour >= 12 && now.hour < 18;
@@ -127,6 +129,7 @@ class _PatientHomeState extends State<PatientHome> {
     return GestureDetector(
       child: Stack(
         children: [
+          isConfirmed? Conformer(): Container(),
           Container(
             color: const Color(0xFFE1EBF1),
             padding: EdgeInsets.symmetric(
@@ -155,7 +158,7 @@ class _PatientHomeState extends State<PatientHome> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "HELLO "+Get.find<UserInfo>().firstName,
+                                "HELLO " + Get.find<UserInfo>().firstName,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 22,

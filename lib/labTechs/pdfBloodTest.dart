@@ -1,6 +1,8 @@
 // ignore_for_file: file_names, prefer_const_constructors, no_logic_in_create_state, prefer_const_literals_to_create_immutables
 
+import 'package:aveksha/controllers/hrControl.dart';
 import 'package:aveksha/labTechs/bloodTest.dart';
+import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
@@ -44,6 +46,13 @@ class _PdfBloodTestState extends State<PdfBloodTest> {
   static GlobalKey previewContainer = new GlobalKey();
   @override
   Widget build(BuildContext context) {
+    const String cloudinaryCustomFolder = "aveksha/hr";
+    const String cloudinaryApiKey = "972485551671114";
+    const String cloudinaryApiSecret = "uWGoNjtRS-ClDnjkqtR8ltF78Ho";
+    const String cloudinaryCloudName = "foodfinder";
+    Cloudinary cloudinary =
+        Cloudinary(cloudinaryApiKey, cloudinaryApiSecret, cloudinaryCloudName);
+
     var _image;
 
     takeScreenShot() async {
@@ -53,7 +62,18 @@ class _PdfBloodTestState extends State<PdfBloodTest> {
       var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       var pngBytes = byteData!.buffer.asUint8List();
       _image = MemoryImage(pngBytes);
-      print(_image);
+      var date = DateFormat.yMd().format(DateTime.now());
+      var result = await cloudinary.uploadFile(
+          fileBytes: pngBytes,
+          fileName: "Blood Report",
+          folder: cloudinaryCustomFolder,
+          resourceType: CloudinaryResourceType.auto);
+      await addHR(
+          title: "Blood Report",
+          url: result.url!,
+          date: date,
+          id: "6257066a294f0015a5b3bedc");
+      Navigator.of(context).pop();
     }
 
     return RepaintBoundary(
@@ -197,19 +217,18 @@ class _PdfBloodTestState extends State<PdfBloodTest> {
                                 fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                       ElevatedButton(
-                          child: Text('Take SS'),
+                          child: Text('Submit'),
                           onPressed: () {
                             takeScreenShot();
                           }),
-                    
+
                       // Container(
                       //   decoration: BoxDecoration(
                       //     image: new DecorationImage(
                       //     fit: BoxFit.cover, image: _image),
                       //   ),
-                    //  )
-                    ]
-                    ,
+                      //  )
+                    ],
                   ),
                 )
               ]))),

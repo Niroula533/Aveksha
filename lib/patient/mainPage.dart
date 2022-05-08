@@ -51,7 +51,11 @@ class _PatientMainPageState extends State<PatientMainPage> {
                   )),
         );
       } else {
-        _currentIndex = index;
+        if (Get.find<UserInfo>().confirmed) {
+          _currentIndex = index;
+        } else {
+          _currentIndex = 0;
+        }
       }
     });
   }
