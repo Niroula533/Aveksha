@@ -33,7 +33,6 @@ const docCtrl = {
         );
         if (role == 0) {
           user = await Patient.findOne({ user_id: gotUser.userId });
-          console.log("no", user);
         } else if (role == 1) {
           user = await Doctors.findOne({ user_id: gotUser.userId });
         } else {
@@ -83,8 +82,6 @@ const docCtrl = {
           email: value.email,
           phone: value.phone,
           speciality: doc.speciality,
-          booked: doc.booked,
-          availability: doc.availability,
           hospital: doc.hospital,
         };
         return dUser;
@@ -127,17 +124,25 @@ const docCtrl = {
           return decoded;
         }
       );
+      const doctor = await Doctors.findOne({user_id: doctorId});
+      var isDoctor = doctor? true: false;
       const appointment = new Appointments({
+        isDoctor: isDoctor,
         status: requestAppointment.status,
         date: requestAppointment.date,
         time: requestAppointment.time,
+        hour:requestAppointment.hour,
         problem: requestAppointment.problem,
         patient_Name: requestAppointment.patient_Name,
+        doctor_Name: requestAppointment.doctor_Name,
+        speciality: requestAppointment.speciality,
+        patient_phone: requestAppointment.patient_phone,
         patient_id: user.userId,
         doctor_id: doctorId,
       });
+      console.log(appointment);
       await appointment.save();
-      return res.json({ id: appointment._id });
+      return res.json({ id: appointment._id, isDoctor: isDoctor });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

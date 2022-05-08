@@ -7,20 +7,25 @@ const appointments = new mongoose.Schema({
   date: {
     type: Date,
   },
-  time:{
+  time: {
     type: String,
   },
-  hour:{
+  hour: {
     type: Number,
   },
-  problem:{
+  problem: {
     type: String,
   },
   patient_Name: {
     type: String,
-    ref:"Patient",
   },
-  patient_id:{
+  doctor_Name: {
+    type: String,
+  },
+  isDoctor: Boolean,
+  patient_phone: Number,
+  speciality: String,
+  patient_id: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Patient",
   },

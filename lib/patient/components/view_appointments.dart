@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 class DoctorAppointment extends StatelessWidget {
-  final doctorName, speciality, appointmentDate, appointmentTime, context;
+  final doctorName, speciality, appointmentDate, appointmentTime, context, status;
   const DoctorAppointment(
       {Key? key,
       required this.doctorName,
       required this.context,
       required this.speciality,
       required this.appointmentDate,
-      required this.appointmentTime})
+      required this.appointmentTime,
+      required this.status})
       : super(key: key);
 
   @override
@@ -64,7 +65,8 @@ class DoctorAppointment extends StatelessWidget {
                                 fontSize: 12, fontWeight: FontWeight.bold),
                           )
                         ],
-                      )
+                      ),
+                          Text("Status: $status")
                     ],
                   )))),
       SizedBox(

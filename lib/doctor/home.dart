@@ -1,15 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
 import 'package:aveksha/controllers/userControl.dart';
-import 'package:aveksha/doctor/components/appointmentReq.dart';
-import 'package:aveksha/doctor/components/scheduledAppointments.dart';
-import 'package:aveksha/labTechs/bloodTest.dart';
+import 'package:aveksha/doctor/components/scheduleLab.dart';
+import 'package:aveksha/doctor/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:quiver/iterables.dart';
-
 import '../controllers/doctorControl.dart';
 import '../patient/components/tab_component.dart';
 import 'components/scheduleDoctor.dart';
@@ -69,8 +66,19 @@ class _DoctorHomeState extends State<DoctorHome> {
 
   @override
   Widget build(BuildContext context) {
+    TimeOfDay now = TimeOfDay.now();
+    bool morning = now.hour > 4 && now.hour < 12;
+    bool afternoon = now.hour >= 12 && now.hour < 18;
+    bool evening = now.hour >= 18 && now.hour < 22;
+    String gretting = morning
+        ? "Morning"
+        : afternoon
+            ? "Afternoon"
+            : evening
+                ? "Evening"
+                : "Night";
+
     List<PopupMenuItem> menuItems = [
-      PopupMenuItem(child: Text("Edit Profile")),
       PopupMenuItem(
           child: TextButton(
         child: Text("Sign Out"),
@@ -114,7 +122,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "HELLO END",
+                            "HELLO " + Get.find<UserInfo>().firstName,
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 22,
@@ -124,7 +132,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                                 ..color = Colors.black,
                             ),
                           ),
-                          Text("GOOD MORNING!"),
+                          Text("GOOD $gretting!"),
                         ],
                       ),
                     )
@@ -188,6 +196,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     GetX<ListofAppointments>(builder: (controller) {
+                      print(controller);
                       return ListView.builder(
                         itemCount: controller.appointments.length,
                         itemBuilder: (context, index) {
@@ -195,7 +204,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                             count = 0;
                           }
                           if (controller.appointments[index].status ==
-                              'pending') {
+                              'Pending') {
                             return Container(
                                 margin: EdgeInsets.only(bottom: 10),
                                 decoration: BoxDecoration(
@@ -214,10 +223,11 @@ class _DoctorHomeState extends State<DoctorHome> {
                                         onPressed: () {
                                           Get.find<ListofAppointments>()
                                               .updateAppointments(
-                                                  id: controller
-                                                      .appointments[index].id,
-                                                  status: "active",
-                                                  index: index);
+                                            id: controller
+                                                .appointments[index].id,
+                                            status: "Active",
+                                          );
+                                          Get.offAll(() => DoctorMainPage());
                                         },
                                       ), // icon-1
                                       IconButton(
@@ -228,10 +238,11 @@ class _DoctorHomeState extends State<DoctorHome> {
                                         onPressed: () {
                                           Get.find<ListofAppointments>()
                                               .updateAppointments(
-                                                  id: controller
-                                                      .appointments[index].id,
-                                                  status: "rejected",
-                                                  index: index);
+                                            id: controller
+                                                .appointments[index].id,
+                                            status: "Rejected",
+                                          );
+                                          Get.offAll(() => DoctorMainPage());
                                         },
                                       ), // icon-2
                                     ],
@@ -274,7 +285,7 @@ class _DoctorHomeState extends State<DoctorHome> {
                         itemCount: controller.appointments.length,
                         itemBuilder: (context, index) {
                           if (controller.appointments[index].status ==
-                              'active') {
+                              'Active') {
                             return Container(
                                 margin: EdgeInsets.only(bottom: 10),
                                 decoration: BoxDecoration(
@@ -305,7 +316,10 @@ class _DoctorHomeState extends State<DoctorHome> {
                   ],
                 ),
               ),
-            if (scheduleActive) ScheduleAppointmentDoctor()
+            if (scheduleActive && Get.find<UserInfo>().role == 1)
+              ScheduleAppointmentDoctor(),
+            if (scheduleActive && Get.find<UserInfo>().role == 2)
+              ScheduleAppointmentLab()
           ],
         ),
       ),

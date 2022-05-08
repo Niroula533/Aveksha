@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 const hospitalModel = require("../models/hospitalModel");
 const labTechnicianModel = require("../models/labTechnicianModel");
 const Reminder = require("../models/reminderModel");
+const feedback = require("../models/feedbackModel");
 require("dotenv").config();
 
 var generateOtp = async (email) => {
@@ -358,7 +359,7 @@ const userCtrl = {
       var doseTime = reminder.doseTime;
       if (reminder.doseTime.length - 1 == doseIndex) {
         doseTime = reminder.doseTime.map((value) => {
-          value.isTaken = 1;
+          value.isTaken = 0;
           return value;
         });
       } else {
@@ -370,6 +371,64 @@ const userCtrl = {
     } catch (err) {
       console.log(err.message);
       return res.status(500).json({ msg: err.message });
+    }
+  },
+  rating: async (req, res) => {
+    try {
+      const { rating, comment, accessToken, doctor_id, patientName } = req.body;
+      console.log(patientName);
+
+      const gotUser = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN,
+        (err, decoded) => {
+          if (err) {
+            console.log(err);
+          }
+          return decoded;
+        }
+      );
+
+      const feedback_info = new feedback({
+        comment: comment,
+        rating: rating,
+        firstName: patientName,
+        patient_user_id: gotUser.userId,
+        doctor_user_id: doctor_id,
+        ptientName: patientName,
+      });
+      await feedback_info.save();
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  getFeedback: async (req, res) => {
+    try {
+      const { doctor_user_id } = req.body;
+      var user, feedbacks;
+      if (!doctor_user_id) {
+        const { accessToken } = req.body;
+        user = jwt.verify(
+          accessToken,
+          process.env.ACCESS_TOKEN,
+          (err, user) => {
+            if (err) console.log(err);
+            return user;
+          }
+        );
+        console.log(user);
+        feedbacks = await feedback.find({ doctor_user_id: user.userId });
+      } else {
+        feedbacks = await feedback.find({ doctor_user_id: doctor_user_id });
+      }
+      console.log(feedbacks)
+      return res.json(
+        feedbacks,
+      );
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ msg: error.message });
     }
   },
 };

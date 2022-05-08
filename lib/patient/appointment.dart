@@ -29,14 +29,13 @@ class AppointmentRequest extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<AppointmentRequest> createState() => _AppointmentRequestState(
-      );
+  State<AppointmentRequest> createState() => _AppointmentRequestState();
 }
 
 class _AppointmentRequestState extends State<AppointmentRequest> {
-
-  _AppointmentRequestState(
-      {Key? key,  });
+  _AppointmentRequestState({
+    Key? key,
+  });
 
   final TextEditingController _pickedDate = TextEditingController();
   final TextEditingController _problem = TextEditingController();
@@ -117,11 +116,16 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
             Padding(
               padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
               child: Text(
-                'Patient Name: '+Get.find<UserInfo>().firstName+" "+Get.find<UserInfo>().lastName,
+                'Patient Name: ' +
+                    Get.find<UserInfo>().firstName +
+                    " " +
+                    Get.find<UserInfo>().lastName,
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            Divider(thickness: 2,),
+            Divider(
+              thickness: 2,
+            ),
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Text(
@@ -166,8 +170,10 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                           DateTime? _dateTime = null;
                           _dateTime = await showDatePicker(
                                   context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime.now(),
+                                  initialDate:
+                                      DateTime.now().add(Duration(days: 1)),
+                                  firstDate:
+                                      DateTime.now().add(Duration(days: 1)),
                                   lastDate:
                                       DateTime.now().add(Duration(days: 7)))
                               .then((date) {
@@ -206,9 +212,9 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                             child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                   (_pickedTime != null)
-                                   ? _pickedTime!.toString()
-                                   :'Time',
+                                  (_pickedTime != null)
+                                      ? _pickedTime!.toString()
+                                      : 'Time',
                                   style: TextStyle(
                                       color: Colors.black.withOpacity(0.60),
                                       fontSize: 16),
@@ -246,7 +252,9 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                 )
               ],
             ),
-            Divider(thickness: 2,),
+            Divider(
+              thickness: 2,
+            ),
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Text(
@@ -289,19 +297,25 @@ class _AppointmentRequestState extends State<AppointmentRequest> {
                       "date": _pickedDate.text,
                       "time": _pickedTime,
                       "problem": _problem.text,
-                      "patient_Name": Get.find<UserInfo>().firstName + " " +Get.find<UserInfo>().lastName ,
+                      "patient_Name": Get.find<UserInfo>().firstName +
+                          " " +
+                          Get.find<UserInfo>().lastName,
+                      "hour": _pickedHours,
+                      "patient_phone": Get.find<UserInfo>().phone,
+                      "doctor_Name": widget.serviceProvider.firstName,
+                      "speciality": widget.serviceProvider.speciality
                     };
-                    var response = await Dio().post(
-                        'http://10.0.2.2:3000/doctor/addAppointment',
-                        data: {
-                          "accessToken": accessToken,
-                          "doctorId": widget.serviceProvider.id,
-                          "requestAppointment": requestAppointment
-                        });
+
+                    await Get.find<ListofAppointments>().addAppointments(
+                        accessToken: accessToken,
+                        doctorId: widget.serviceProvider.id,
+                        requestAppointment: requestAppointment);
+
                     await NotificationApi().sendRemote(
                         title: "Appointment Request",
                         body: "You have new appointment request",
                         topic: widget.serviceProvider.phone.toString());
+                    Navigator.of(context).pop();
                   },
                   child: Text("Book")),
             ),

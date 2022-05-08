@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors, non_constant_identifier_names
 
+import 'package:aveksha/comp/feedBacks.dart';
 import 'package:aveksha/comp/navigation_bar.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:aveksha/controllers/feedbackControl.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -35,6 +37,8 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
   void initState() {
     Get.find<ListofAppointments>().getAppointments(
         id: widget.serviceProvider.id, role: widget.serviceProvider.role);
+    Get.find<ListOfFeedbacks>()
+        .getFeedbacks(doctor_user_id: widget.serviceProvider.id);
     super.initState();
   }
 
@@ -158,7 +162,19 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
             SizedBox(
               height: height * 0.02,
             ),
-            if (feedbackActive) Container(),
+            if (feedbackActive)
+              Expanded(child: GetX<ListOfFeedbacks>(
+                builder: (controller) {
+                  return ListView.builder(
+                      itemCount: controller.feedbacks.length,
+                      itemBuilder: ((context, index) {
+                        return FeedBackView(
+                            feedback: controller.feedbacks[index].comment,
+                            patientName: controller.feedbacks[index].firstName,
+                            rating: controller.feedbacks[index].rating);
+                      }));
+                },
+              )),
             if (scheduleActive)
               Container(
                 child: Column(
@@ -181,17 +197,20 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                       ],
                     ),
                     GetX<ListofAppointments>(builder: (controller) {
+                      List<AppointMents> activeAppointments = controller
+                          .appointments
+                          .where((p0) => p0.status == "Active")
+                          .toList();
                       return ListView.builder(
-                        itemCount: controller.appointments.length,
+                        itemCount: activeAppointments.length,
                         itemBuilder: (context, index) {
                           if (DateTime.now().isBefore(DateTime.parse(
-                                  controller.appointments[index].date)) &&
-                              DateTime.parse(
-                                      controller.appointments[index].date)
+                                  activeAppointments[index].date)) &&
+                              DateTime.parse(activeAppointments[index].date)
                                   .isBefore(
                                       DateTime.now().add(Duration(days: 7)))) {
                             if (DateFormat('EEEE').format(DateTime.parse(
-                                    controller.appointments[index].date)) ==
+                                    activeAppointments[index].date)) ==
                                 DateFormat('EEEE').format(
                                     DateTime.now().add(Duration(days: 1)))) {
                               return Row(
@@ -205,10 +224,11 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                                         border:
                                             Border.all(color: Colors.white)),
                                     child: Text(
-                                        viewSlot(
-                                            controller.appointments[index].time,
-                                            controller
-                                                .appointments[index].hour),
+                                        widget.serviceProvider.role == 1
+                                            ? viewSlot(
+                                                activeAppointments[index].time,
+                                                activeAppointments[index].hour)
+                                            : activeAppointments[index].time,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 14, color: Colors.white)),
@@ -243,17 +263,20 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                       ],
                     ),
                     GetX<ListofAppointments>(builder: (controller) {
+                      List<AppointMents> activeAppointments = controller
+                          .appointments
+                          .where((p0) => p0.status == "Active")
+                          .toList();
                       return ListView.builder(
-                        itemCount: controller.appointments.length,
+                        itemCount: activeAppointments.length,
                         itemBuilder: (context, index) {
                           if (DateTime.now().isBefore(DateTime.parse(
-                                  controller.appointments[index].date)) &&
-                              DateTime.parse(
-                                      controller.appointments[index].date)
+                                  activeAppointments[index].date)) &&
+                              DateTime.parse(activeAppointments[index].date)
                                   .isBefore(
                                       DateTime.now().add(Duration(days: 7)))) {
                             if (DateFormat('EEEE').format(DateTime.parse(
-                                    controller.appointments[index].date)) ==
+                                    activeAppointments[index].date)) ==
                                 DateFormat('EEEE').format(
                                     DateTime.now().add(Duration(days: 2)))) {
                               return Row(
@@ -267,10 +290,11 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                                         border:
                                             Border.all(color: Colors.white)),
                                     child: Text(
-                                        viewSlot(
-                                            controller.appointments[index].time,
-                                            controller
-                                                .appointments[index].hour),
+                                        widget.serviceProvider.role == 1
+                                            ? viewSlot(
+                                                activeAppointments[index].time,
+                                                activeAppointments[index].hour)
+                                            : activeAppointments[index].time,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 14, color: Colors.white)),
@@ -305,17 +329,20 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                       ],
                     ),
                     GetX<ListofAppointments>(builder: (controller) {
+                      List<AppointMents> activeAppointments = controller
+                          .appointments
+                          .where((p0) => p0.status == "Active")
+                          .toList();
                       return ListView.builder(
-                        itemCount: controller.appointments.length,
+                        itemCount: activeAppointments.length,
                         itemBuilder: (context, index) {
                           if (DateTime.now().isBefore(DateTime.parse(
-                                  controller.appointments[index].date)) &&
-                              DateTime.parse(
-                                      controller.appointments[index].date)
+                                  activeAppointments[index].date)) &&
+                              DateTime.parse(activeAppointments[index].date)
                                   .isBefore(
                                       DateTime.now().add(Duration(days: 7)))) {
                             if (DateFormat('EEEE').format(DateTime.parse(
-                                    controller.appointments[index].date)) ==
+                                    activeAppointments[index].date)) ==
                                 DateFormat('EEEE').format(
                                     DateTime.now().add(Duration(days: 3)))) {
                               return Row(
@@ -329,10 +356,11 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                                         border:
                                             Border.all(color: Colors.white)),
                                     child: Text(
-                                        viewSlot(
-                                            controller.appointments[index].time,
-                                            controller
-                                                .appointments[index].hour),
+                                        widget.serviceProvider.role == 1
+                                            ? viewSlot(
+                                                activeAppointments[index].time,
+                                                activeAppointments[index].hour)
+                                            : activeAppointments[index].time,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 14, color: Colors.white)),
@@ -367,13 +395,16 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                       ],
                     ),
                     GetX<ListofAppointments>(builder: (controller) {
+                      List<AppointMents> activeAppointments = controller
+                          .appointments
+                          .where((p0) => p0.status == "Active")
+                          .toList();
                       return ListView.builder(
-                        itemCount: controller.appointments.length,
+                        itemCount: activeAppointments.length,
                         itemBuilder: (context, index) {
                           if (DateTime.now().isBefore(DateTime.parse(
-                                  controller.appointments[index].date)) &&
-                              DateTime.parse(
-                                      controller.appointments[index].date)
+                                  activeAppointments[index].date)) &&
+                              DateTime.parse(activeAppointments[index].date)
                                   .isBefore(
                                       DateTime.now().add(Duration(days: 7)))) {
                             if (DateFormat('EEEE').format(DateTime.parse(
@@ -391,10 +422,11 @@ class _PatientToDoctorState extends State<PatientToDoctor> {
                                         border:
                                             Border.all(color: Colors.white)),
                                     child: Text(
-                                        viewSlot(
-                                            controller.appointments[index].time,
-                                            controller
-                                                .appointments[index].hour),
+                                        widget.serviceProvider.role == 1
+                                            ? viewSlot(
+                                                activeAppointments[index].time,
+                                                activeAppointments[index].hour)
+                                            : activeAppointments[index].time,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 14, color: Colors.white)),

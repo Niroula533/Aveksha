@@ -13,11 +13,9 @@ import 'package:aveksha/comp/loginPage.dart';
 import 'package:get/get.dart';
 import 'doctor/main_page.dart';
 import 'comp/otpPage.dart';
-import 'package:aveksha/labTechs/acceptedLabTech.dart';
 import 'package:aveksha/patient/appointment.dart';
 import 'package:aveksha/labTechs/bloodTest.dart';
 import 'package:aveksha/labTechs/labTestAppointment.dart';
-import 'package:aveksha/labTechs/labtech.dart';
 import 'package:aveksha/labTechs/pdfBloodTest.dart';
 import 'package:aveksha/labTechs/sugarTest.dart';
 
@@ -55,15 +53,8 @@ class RouteGenerator {
             builder: (_) =>
                 DoctorViewAppointment(appointmentInfo: appointmentInfo));
       case '/labAppointmentRequest':
-        return MaterialPageRoute(builder: (_) => ReqLabAppointment());
-      case '/labtech':
-        labAppInfo = settings.arguments as LabAppointmentDetails;
-        return MaterialPageRoute(
-            builder: (_) => LabTechPage(labAppInfo: labAppInfo));
-      case '/acceptedLabList':
-        labAppInfo = settings.arguments as LabAppointmentDetails;
-        return MaterialPageRoute(
-            builder: (_) => AcceptedLabTech(labAppInfo: labAppInfo));
+      DocOrLab serviceProvider = settings.arguments as DocOrLab;
+        return MaterialPageRoute(builder: (_) => ReqLabAppointment(serviceProvider: serviceProvider,));
       case '/bloodTest':
         String pname = settings.arguments as String;
         return MaterialPageRoute(builder: (_) => BloodTestLab(pname: pname));

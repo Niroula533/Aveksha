@@ -25,7 +25,7 @@ class Speciality_Doctor extends StatefulWidget {
 class _Speciality_DoctorState extends State<Speciality_Doctor> {
   @override
   void initState() {
-   // print(Get.find<ListOfDoctorsAndLabtech>().labTechs[0].firstName);
+    // print(Get.find<ListOfDoctorsAndLabtech>().labTechs[0].firstName);
     super.initState();
   }
 
@@ -149,7 +149,23 @@ class _Speciality_DoctorState extends State<Speciality_Doctor> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(5.0),
                                   child: InkWell(
-                                    onTap: null,
+                                    onTap: () {
+                                      if (specializedDoctorsOrTechnicians[index]
+                                              .role ==
+                                          1) {
+                                        Navigator.of(context).pushNamed(
+                                            '/appointment',
+                                            arguments:
+                                                specializedDoctorsOrTechnicians[
+                                                    index]);
+                                      } else {
+                                        Navigator.of(context).pushNamed(
+                                            '/labAppointmentRequest',
+                                            arguments:
+                                                specializedDoctorsOrTechnicians[
+                                                    index]);
+                                      }
+                                    },
                                     child: Container(
                                       height: 40,
                                       decoration: BoxDecoration(

@@ -8,29 +8,14 @@ import 'package:aveksha/controllers/userControl.dart';
 
 import '../../controllers/doctorControl.dart';
 
-class ScheduleAppointmentDoctor extends StatefulWidget {
-  const ScheduleAppointmentDoctor({Key? key}) : super(key: key);
+class ScheduleAppointmentLab extends StatefulWidget {
+  const ScheduleAppointmentLab({Key? key}) : super(key: key);
   @override
-  State<ScheduleAppointmentDoctor> createState() =>
-      _ScheduleAppointmentDoctorState();
+  State<ScheduleAppointmentLab> createState() =>
+      _ScheduleAppointmentLabState();
 }
 
-class _ScheduleAppointmentDoctorState extends State<ScheduleAppointmentDoctor> {
- 
-  viewSlot(time, hour) {
-    int _hour = hour.toInt();
-    var v = hour.toString().split('.');
-    print(v);
-    TimeOfDay _startTime = TimeOfDay(
-        hour: int.parse(time.split(":")[0]),
-        minute: int.parse(time.split(":")[1]));
-    TimeOfDay _endTime = _startTime.replacing(
-        hour: _startTime.hour + _hour, minute: _startTime.minute);
-
-    return _startTime.format(context) + ' - ' + _endTime.format(context);
-    // print(_startTime);
-    // print(_endTime);
-  }
+class _ScheduleAppointmentLabState extends State<ScheduleAppointmentLab> {
 
   @override
   Widget build(BuildContext context) {
@@ -81,10 +66,8 @@ class _ScheduleAppointmentDoctorState extends State<ScheduleAppointmentDoctor> {
                                     color: Color.fromARGB(255, 156, 31, 22),
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: Colors.white)),
-                                child: Text(
-                                    viewSlot(
+                                child: Text(                                  
                                         activeAppointments[index].time,
-                                        activeAppointments[index].hour),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 14, color: Colors.white)),
@@ -150,10 +133,8 @@ class _ScheduleAppointmentDoctorState extends State<ScheduleAppointmentDoctor> {
                                     color: Color.fromARGB(255, 156, 31, 22),
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: Colors.white)),
-                                child: Text(
-                                    viewSlot(
+                                child: Text(                                  
                                         activeAppointments[index].time,
-                                        activeAppointments[index].hour),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 14, color: Colors.white)),
@@ -219,10 +200,8 @@ class _ScheduleAppointmentDoctorState extends State<ScheduleAppointmentDoctor> {
                                     color: Color.fromARGB(255, 156, 31, 22),
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: Colors.white)),
-                                child: Text(
-                                    viewSlot(
+                                child: Text(                                  
                                         activeAppointments[index].time,
-                                        activeAppointments[index].hour),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 14, color: Colors.white)),
@@ -265,15 +244,17 @@ class _ScheduleAppointmentDoctorState extends State<ScheduleAppointmentDoctor> {
             Container(
               height: 40,
               child: GetX<ListofAppointments>(builder: (controller) {
+                List<AppointMents> activeAppointments = controller.appointments
+                    .where((p0) => p0.status == "Active").toList();
                 return ListView.builder(
-                  itemCount: controller.appointments.length,
+                  itemCount: activeAppointments.length,
                   itemBuilder: (context, index) {
                     if (DateTime.now().isBefore(DateTime.parse(
-                            controller.appointments[index].date)) &&
+                            activeAppointments[index].date)) &&
                         DateTime.parse(controller.appointments[index].date)
                             .isBefore(DateTime.now().add(Duration(days: 7)))) {
                       if (DateFormat('EEEE').format(DateTime.parse(
-                              controller.appointments[index].date)) ==
+                              activeAppointments[index].date)) ==
                           DateFormat('EEEE')
                               .format(DateTime.now().add(Duration(days: 4)))) {
                         return Expanded(
@@ -286,10 +267,8 @@ class _ScheduleAppointmentDoctorState extends State<ScheduleAppointmentDoctor> {
                                     color: Color.fromARGB(255, 156, 31, 22),
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: Colors.white)),
-                                child: Text(
-                                    viewSlot(
-                                        controller.appointments[index].time,
-                                        controller.appointments[index].hour),
+                                child: Text(                                  
+                                        activeAppointments[index].time,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 14, color: Colors.white)),

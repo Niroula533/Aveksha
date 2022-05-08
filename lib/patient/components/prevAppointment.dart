@@ -1,15 +1,17 @@
+import 'package:aveksha/comp/feedBacks.dart';
+import 'package:aveksha/controllers/doctorControl.dart';
 import 'package:flutter/material.dart';
 
 class PrevDoctorAppointment extends StatelessWidget {
-  final doctorName, speciality;
-  const PrevDoctorAppointment({
-    Key? key,
-    required this.doctorName,
-    required this.speciality,
-  }) : super(key: key);
+  final AppointMents appointment;
+  const PrevDoctorAppointment({Key? key, required this.appointment})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String doctorName = appointment.doctor_Name;
+    String speciality = appointment.speciality;
+    String doctor_id = appointment.doctor_id;
     return Column(children: [
       ClipRRect(
           borderRadius: BorderRadius.circular(14),
@@ -45,10 +47,13 @@ class PrevDoctorAppointment extends StatelessWidget {
                               style: ButtonStyle(
                                 padding: MaterialStateProperty.all<EdgeInsets>(
                                     EdgeInsets.all(2.5)),
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Color(0xFF60BBFE)),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Color(0xFF60BBFE)),
                               ),
-                              onPressed: null,
+                              onPressed: () {
+                                showRatingAppDialog(doctor_id: doctor_id,context: context, appointmentId: appointment.id);
+                              },
                               child: Text(
                                 'GIVE FEEDBACK',
                                 style: TextStyle(

@@ -1,8 +1,10 @@
 import 'package:aveksha/comp/feedBacks.dart';
+import 'package:aveksha/controllers/feedbackControl.dart';
 import 'package:aveksha/doctor/components/appointmentReq.dart';
 import 'package:aveksha/doctor/components/scheduledAppointments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 
 import '../patient/components/tab_component.dart';
 
@@ -15,11 +17,21 @@ class FeedBackPage extends StatefulWidget {
 }
 
 class _FeedBackPageState extends State<FeedBackPage> {
- 
+  getFeeds() async {
+    var storage = FlutterSecureStorage();
+    String? accessToken = await storage.read(key: "accessToken");
+    Get.find<ListOfFeedbacks>().getFeedbacks(accessToken: accessToken!);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getFeeds();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<PopupMenuItem> menuItems = [
-      PopupMenuItem(child: Text("Edit Profile")),
       PopupMenuItem(
           child: TextButton(
         child: Text("Sign Out"),
@@ -33,65 +45,49 @@ class _FeedBackPageState extends State<FeedBackPage> {
     ];
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    return Container(
-      color: const Color(0xFFE1EBF1),
-      padding: EdgeInsets.symmetric(
-          vertical: height * 0.05, horizontal: width * 0.04),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      height: height * 0.095,
-                      width: height * 0.095,
-                      color: Colors.white.withOpacity(0.75),
-                    ),
-                  ),
-                  SizedBox(
-                    width: width * 0.05,
-                  ),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "HELLO END",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 22,
-                            foreground: Paint()
-                              ..style = PaintingStyle.stroke
-                              ..strokeWidth = 1
-                              ..color = Colors.black,
-                          ),
-                        ),
-                        Text("GOOD MORNING!"),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              PopupMenuButton(itemBuilder: (context) => [...menuItems])
-            ],
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.04,
-          ),
-          Text("FEEDBACKS"),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.02,
-          ),
-          FeedBack(patientName: "Mr. Ankush", feedback: "Throughly helped me with my problem and gave proper advise.", rating: 4),
-          FeedBack(patientName: "Mr. Ankush", feedback: "Throughly helped me with my problem and gave proper advise.", rating: 4),
-          FeedBack(patientName: "Mr. Ankush", feedback: "Throughly helped me with my problem and gave proper advise.", rating: 4),
-          FeedBack(patientName: "Mr. Ankush", feedback: "Throughly helped me with my problem and gave proper advise.", rating: 4),
-        ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFE1EBF1),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFFE1EBF1),
+        elevation: 0,
+        title: Container(
+            // child: Image.asset('image/aveksha_logo.png'),
+            margin: EdgeInsets.fromLTRB(20, 10, 0, 0),
+            child:
+                Image.asset('images/aveksha_logo.png', height: 100, width: 200),
+            padding: EdgeInsets.all(5.0)),
+      ),
+      body: Container(
+        height: height,
+        color: const Color(0xFFE1EBF1),
+        padding: EdgeInsets.symmetric(
+            vertical: height * 0.05, horizontal: width * 0.04),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "FEEDBACKS",
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
+            Expanded(
+              child: GetX<ListOfFeedbacks>(builder: (controller) {
+                return ListView.builder(
+                    itemCount: controller.feedbacks.length,
+                    itemBuilder: ((context, index) {
+                      return FeedBackView(
+                          feedback: controller.feedbacks[index].comment,
+                          patientName: controller.feedbacks[index].firstName,
+                          rating: controller.feedbacks[index].rating);
+                    }));
+              }),
+            )
+          ],
+        ),
       ),
     );
   }

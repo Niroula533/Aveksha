@@ -83,8 +83,7 @@ void main() async {
           role: user['role'],
           address: user['address'],
         );
-        // return '/labTechnicianMain';
-        initialRoute = '/patientMain';
+        initialRoute = '/doctorMain';
       }
     } else {
       await storage.deleteAll();
@@ -120,10 +119,7 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessage.listen((message) {
       if (message.notification != null) {
         String payload = "/doctorMain";
-        if (Get.find<UserInfo>().role == 2) {
-          // for lab technician
-          payload = '/labTech';
-        } else if (Get.find<UserInfo>().role == 0) {
+        if (Get.find<UserInfo>().role == 0) {
           payload = '/patientMain';
         }
         NotificationApi().showNotification(
@@ -157,10 +153,8 @@ class _MyAppState extends State<MyApp> {
             doseIndex: doseIndex,
             reminderId: reminderId);
         Get.offAll(() => PatientMainPage());
-      } else if (payload.contains('/doctorMain')) {
-        Get.offAll(() => DoctorMainPage());
       } else {
-        Get.offAll(() => LoginPage());
+        Get.offAll(() => DoctorMainPage());
       }
       // Navigator.of(context).push(MaterialPageRoute(builder: (context) => PatientMainPage()));
     }

@@ -1,6 +1,8 @@
+import 'package:aveksha/controllers/doctorControl.dart';
 import 'package:aveksha/controllers/hrControl.dart';
 import 'package:aveksha/controllers/reminderControl.dart';
-import 'package:aveksha/patient/components/appointments.dart';
+import 'package:aveksha/controllers/userControl.dart';
+import 'package:aveksha/patient/components/view_appointments.dart';
 import 'package:aveksha/patient/components/hr_component.dart';
 import 'package:aveksha/patient/components/prevAppointment.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +28,6 @@ class _PatientHomeState extends State<PatientHome> {
   var _endDate = TextEditingController();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  List<Widget> prevAppointments = [
-    PrevDoctorAppointment(doctorName: 'A', speciality: 'Pediatrician')
-  ];
 
   setPlay(bool playValue) {
     setState(() {
@@ -69,20 +67,17 @@ class _PatientHomeState extends State<PatientHome> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> appointments = [
-      DoctorAppointment(
-          context: context,
-          doctorName: 'A',
-          speciality: 'Pediatrician',
-          appointmentDate: 'TODAY',
-          appointmentTime: '01:30 PM'),
-      DoctorAppointment(
-          context: context,
-          doctorName: 'B',
-          speciality: 'Physician',
-          appointmentDate: 'JAN 28',
-          appointmentTime: '12:00 PM'),
-    ];
+    TimeOfDay now = TimeOfDay.now();
+    bool morning = now.hour > 4 && now.hour < 12;
+    bool afternoon = now.hour >= 12 && now.hour < 18;
+    bool evening = now.hour >= 18 && now.hour < 22;
+    String gretting = morning
+        ? "Morning"
+        : afternoon
+            ? "Afternoon"
+            : evening
+                ? "Evening"
+                : "Night";
     List<PopupMenuItem> menuItems = [
       PopupMenuItem(child: Text("Edit Profile")),
       PopupMenuItem(
@@ -160,7 +155,7 @@ class _PatientHomeState extends State<PatientHome> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "HELLO END",
+                                "HELLO "+Get.find<UserInfo>().firstName,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 22,
@@ -170,7 +165,7 @@ class _PatientHomeState extends State<PatientHome> {
                                     ..color = Colors.black,
                                 ),
                               ),
-                              Text("GOOD MORNING!"),
+                              Text("GOOD $gretting!"),
                             ],
                           ),
                         )
@@ -233,25 +228,71 @@ class _PatientHomeState extends State<PatientHome> {
                 if (docActive)
                   Column(
                     children: [
-                      Text('Appontements'),
+                      Text('Appointments'),
                       SizedBox(
-                          height:
-                              200, // (250 - 50) where 50 units for other widgets
-                          child: ListView(
-                            padding: EdgeInsets.symmetric(vertical: 2.0),
-                            shrinkWrap: true,
-                            children: appointments,
-                          )),
+                        height: 200,
+                        child: GetX<ListofAppointments>(
+                          builder: (controller) {
+                            List<AppointMents> activeAndPendingFiltered =
+                                controller
+                                    .ownAppointments
+                                    .where((p0) =>
+                                        p0.status == 'Pending' ||
+                                        p0.status == 'Active')
+                                    .toList();
+
+                            return ListView.builder(
+                                itemCount: activeAndPendingFiltered.length,
+                                itemBuilder: (context, index) {
+                                  return DoctorAppointment(
+                                      status: activeAndPendingFiltered[index]
+                                          .status,
+                                      doctorName:
+                                          activeAndPendingFiltered[index]
+                                              .doctor_Name,
+                                      context: context,
+                                      speciality:
+                                          activeAndPendingFiltered[index]
+                                              .speciality,
+                                      appointmentDate: DateFormat.MMMd().format(
+                                          DateTime.parse(
+                                              activeAndPendingFiltered[index]
+                                                  .date)),
+                                      appointmentTime:
+                                          activeAndPendingFiltered[index].time);
+                                });
+                          },
+                        ),
+                      ),
                       // ...appointments,
                       Divider(),
                       Text('Previous Interactions'),
                       SizedBox(
-                          height:
-                              150, // (250 - 50) where 50 units for other widgets
-                          child: ListView(
-                              padding: EdgeInsets.symmetric(vertical: 2.0),
-                              shrinkWrap: true,
-                              children: prevAppointments)),
+                        height:
+                            150, // (250 - 50) where 50 units for other widgets
+                        // child: ListView(
+                        //     padding: EdgeInsets.symmetric(vertical: 2.0),
+                        //     shrinkWrap: true,
+                        //     children: prevAppointments),
+                        child: GetX<ListofAppointments>(
+                          builder: (controller) {
+                            List<AppointMents> activeAndPendingFiltered =
+                                controller
+                                    .ownAppointments
+                                    .where((p0) =>
+                                        p0.status == 'Declined' ||
+                                        p0.status == 'Inactive')
+                                    .toList();
+                            return ListView.builder(
+                                itemCount: activeAndPendingFiltered.length,
+                                itemBuilder: (context, index) {
+                                  return PrevDoctorAppointment(
+                                      appointment:
+                                          activeAndPendingFiltered[index]);
+                                });
+                          },
+                        ),
+                      ),
                       // ...prevAppointments
                     ],
                   ),
@@ -261,23 +302,6 @@ class _PatientHomeState extends State<PatientHome> {
                       children: [
                         searchHealthRecords(context, _startDate, _endDate),
                         Expanded(
-                          // child: GetX<AllHR>(builder: (controller) {
-                          //   return ListView.builder(
-                          //     itemCount: controller.allHr.length,
-                          //     itemBuilder: (context, index) {
-                          //       return Column(
-                          //         children: [
-                          //           controller.allHr[index],
-                          //           SizedBox(
-                          //             height: 10,
-                          //           )
-                          //         ],
-                          //       );
-                          //     },
-                          //     scrollDirection: Axis.vertical,
-                          //     shrinkWrap: true,
-                          //   );
-                          // }),
                           child: searchHR(),
                         ),
                       ],

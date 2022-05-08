@@ -1,6 +1,7 @@
 import 'package:aveksha/apis/flutter_notifications.dart';
 import 'package:aveksha/comp/meeting.dart';
 import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:aveksha/controllers/feedbackControl.dart';
 import 'package:aveksha/controllers/reminderControl.dart';
 import 'package:aveksha/controllers/userControl.dart';
 import 'package:aveksha/patient/components/display_listOfDoctor.dart';
@@ -26,11 +27,10 @@ class _PatientMainPageState extends State<PatientMainPage> {
   void initState() {
     super.initState();
     Get.put(ListofAppointments());
+    Get.put(ListOfFeedbacks());
     NotificationApi.init(initScheduled: true);
     // listenNotification();
   }
-
-  
 
   // void listenNotifications() =>
   //     NotificationApi.onNotifications.stream.listen(onClickedNotification);
@@ -38,7 +38,8 @@ class _PatientMainPageState extends State<PatientMainPage> {
   // void onClickedNotification(String? payload) => Navigator.of(context)
   //     .pushNamedAndRemoveUntil('/patientMain', (Route<dynamic> route) => false);
 
-  updateIndex({bool? isDoctor, required int index, String? specialization}) async {
+  updateIndex(
+      {bool? isDoctor, required int index, String? specialization}) async {
     await allDocLab.getDoctors();
     setState(() {
       if (specialization != null) {

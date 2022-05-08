@@ -1,3 +1,6 @@
+import 'package:aveksha/comp/meeting.dart';
+import 'package:aveksha/controllers/doctorControl.dart';
+import 'package:aveksha/controllers/feedbackControl.dart';
 import 'package:aveksha/doctor/feedBackPage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +17,14 @@ class DoctorMainPage extends StatefulWidget {
 }
 
 class _DoctorMainPageState extends State<DoctorMainPage> {
+  
+  @override
+  void initState() {
+    super.initState();
+    // Get.put(ListofAppointments());
+    Get.put(ListOfFeedbacks());
+    // listenNotification();
+  }
   int _currentIndex = 0;
 
   updateIndex(int index) {
@@ -33,13 +44,11 @@ class _DoctorMainPageState extends State<DoctorMainPage> {
   Widget build(BuildContext context) {
     List pages = [
       DoctorHome(logout: goToLogin),
-      Center(
-        child: Text("Message"),
-      ),
+      Meeting(),
       FeedBackPage(logout: goToLogin),
     ];
     return Scaffold(
-      body: pages[_currentIndex],
+      body: _currentIndex==1?new Meeting(): pages[_currentIndex],
       extendBody: true,
       bottomNavigationBar: NavBar(updateIndex: updateIndex),
     );

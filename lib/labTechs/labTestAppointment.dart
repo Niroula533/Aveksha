@@ -2,10 +2,16 @@
 
 import 'dart:ui';
 
+import 'package:aveksha/apis/flutter_notifications.dart';
+import 'package:aveksha/controllers/doctorControl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pattern_formatter/pattern_formatter.dart';
+
+import '../controllers/userControl.dart';
 
 class LabAppointmentDetails {
   final String pname;
@@ -16,7 +22,8 @@ class LabAppointmentDetails {
 }
 
 class ReqLabAppointment extends StatefulWidget {
-  const ReqLabAppointment({Key? key}) : super(key: key);
+  DocOrLab serviceProvider;
+  ReqLabAppointment({Key? key, required this.serviceProvider}) : super(key: key);
 
   @override
   State<ReqLabAppointment> createState() => _ReqLabAppointmentState();
@@ -112,7 +119,7 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 50, 156, 146),
+        backgroundColor: Color(0xFF60BBFE),
         leading: IconButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -120,7 +127,7 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
             icon: Icon(Icons.arrow_back_ios)),
         title: Text('Request Lab Appointment'),
       ),
-      backgroundColor: Color.fromARGB(255, 221, 230, 229),
+      backgroundColor: Color(0xFFE1EBF1),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,30 +290,34 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/labtech',
-                        arguments: LabAppointmentDetails(_patientName.text,
-                            _pickedDate.text, _pickedTime!, _pickedTests!));
+                  onPressed: () async {
+                    var storage = FlutterSecureStorage();
+                    final accessToken = await storage.read(key: 'accessToken');
+                    var requestAppointment = {
+                      "status": "Pending",
+                      "date": _pickedDate.text,
+                      "time": _pickedTime!.format(context),
+                      "patient_Name": Get.find<UserInfo>().firstName +
+                          " " +
+                          Get.find<UserInfo>().lastName,
+                      "patient_phone": Get.find<UserInfo>().phone,
+                      "doctor_Name": widget.serviceProvider.firstName,
+                      "speciality": widget.serviceProvider.speciality
+                    };
+
+                    await Get.find<ListofAppointments>().addAppointments(
+                        accessToken: accessToken,
+                        doctorId: widget.serviceProvider.id,
+                        requestAppointment: requestAppointment);
+
+                    await NotificationApi().sendRemote(
+                        title: "Appointment Request",
+                        body: "You have new appointment request",
+                        topic: widget.serviceProvider.phone.toString());
+                    Navigator.of(context).pop();
                   },
                   child: Text("Request")),
             ),
-            // Column(
-            //   children: [
-            //     SizedBox(
-            //       height: 100,
-            //       child: CupertinoDatePicker(
-            //           initialDateTime: _pickedTime
-            //               .add(Duration(minutes: 30 - _pickedTime.minute % 30)),
-            //           minuteInterval: 30,
-            //           mode: CupertinoDatePickerMode.time,
-            //           onDateTimeChanged: (dateTime) {
-            //             setState(() {
-            //               _pickedTime = dateTime;
-            //             });
-            //           }),
-            //     ),
-            //   ],
-            // )
           ],
         ),
       ),
