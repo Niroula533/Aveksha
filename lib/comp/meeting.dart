@@ -61,6 +61,10 @@ class _MeetingState extends State<Meeting> {
                   return ListView.builder(
                       itemCount: activeAppointments.length,
                       itemBuilder: (context, index) {
+                        DateTime p = DateFormat.Hm()
+                            .parse(activeAppointments[index].time);
+                        bool a = DateTime.now().isBefore(p);
+                        print(a);
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,

@@ -23,7 +23,8 @@ class LabAppointmentDetails {
 
 class ReqLabAppointment extends StatefulWidget {
   DocOrLab serviceProvider;
-  ReqLabAppointment({Key? key, required this.serviceProvider}) : super(key: key);
+  ReqLabAppointment({Key? key, required this.serviceProvider})
+      : super(key: key);
 
   @override
   State<ReqLabAppointment> createState() => _ReqLabAppointmentState();
@@ -67,7 +68,7 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
   // );
   //}
   DateTime _time = DateTime.now();
-  TimeOfDay? _pickedTime;
+  String? _pickedTime;
 
   Future<void> viewTime(BuildContext context) async {
     return await showDialog(
@@ -90,8 +91,7 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
                             onDateTimeChanged: (DateTime dateTime) {
                               setState(() {
                                 _time = dateTime;
-                                _pickedTime = TimeOfDay.fromDateTime(
-                                    DateTime.parse('$_time'));
+                                _pickedTime = DateFormat.Hm().format(_time);
                               });
                             }),
                       ),
@@ -201,8 +201,10 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
                           DateTime? _dateTime = null;
                           _dateTime = await showDatePicker(
                                   context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime.now(),
+                                  initialDate:
+                                      DateTime.now().add(Duration(days: 1)),
+                                  firstDate:
+                                      DateTime.now().add(Duration(days: 1)),
                                   lastDate:
                                       DateTime.now().add(Duration(days: 7)))
                               .then((date) {
@@ -242,7 +244,9 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
                             child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'Time',
+                                  (_pickedTime != null)
+                                      ? _pickedTime!.toString()
+                                      : 'Time',
                                   style: TextStyle(
                                       color: Colors.black.withOpacity(0.60),
                                       fontSize: 16),
@@ -296,7 +300,7 @@ class _ReqLabAppointmentState extends State<ReqLabAppointment> {
                     var requestAppointment = {
                       "status": "Pending",
                       "date": _pickedDate.text,
-                      "time": _pickedTime!.format(context),
+                      "time": _pickedTime!,
                       "patient_Name": Get.find<UserInfo>().firstName +
                           " " +
                           Get.find<UserInfo>().lastName,
