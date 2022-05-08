@@ -31,6 +31,7 @@ void main() async {
 
   Get.put(UserInfo());
   final storage = FlutterSecureStorage();
+  await storage.deleteAll();
   var role = await storage.read(key: 'role');
   var accessToken = await storage.read(key: 'accessToken');
   var roledUser;

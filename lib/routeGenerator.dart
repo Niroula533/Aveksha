@@ -7,6 +7,7 @@ import 'package:aveksha/patient/mainPage.dart';
 import 'package:aveksha/patient/patientRegistrationPage.dart';
 import 'package:aveksha/patient/search.dart';
 import 'package:aveksha/doctor/doctorRegistrationPage.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:aveksha/comp/firstPage.dart';
 import 'package:aveksha/comp/loginPage.dart';
@@ -62,7 +63,8 @@ class RouteGenerator {
         String pname = settings.arguments as String;
         return MaterialPageRoute(builder: (_) => SugarTestLab(pname: pname));
       case '/pdfBloodTest':
-        return MaterialPageRoute(builder: (_) => PdfBloodTest());
+        BloodTestData btdata = settings.arguments as BloodTestData;
+        return MaterialPageRoute(builder: (_) => PdfBloodTest(btdata: btdata));
       case '/searchPage':
         Function updateIndex = settings.arguments as Function;
         return MaterialPageRoute(
@@ -81,9 +83,7 @@ class RouteGenerator {
           return MaterialPageRoute(builder: (_) => PatientMainPage());
         } else if (isInitialized == 1) {
           return MaterialPageRoute(builder: (_) => DoctorMainPage());
-        } else if (isInitialized == 2) {
-          return MaterialPageRoute(builder: (_) => PdfBloodTest());
-          // needs to be changed to lab technician main page
+         // needs to be changed to lab technician main page
         } else {
           return _errorRoute();
         }

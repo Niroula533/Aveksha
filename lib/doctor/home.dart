@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
+import 'dart:ui';
 import 'package:aveksha/controllers/userControl.dart';
 import 'package:aveksha/doctor/components/scheduleLab.dart';
 import 'package:aveksha/doctor/main_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -62,6 +64,125 @@ class _DoctorHomeState extends State<DoctorHome> {
         hour: int.parse(time.split(":")[0]),
         minute: int.parse(time.split(":")[1]));
     return _time.format(context);
+  }
+
+  returnTimeOfDay(time) {
+    TimeOfDay _time = TimeOfDay(
+        hour: int.parse(time.split(":")[0]),
+        minute: int.parse(time.split(":")[1]));
+    return _time;
+  }
+
+  DateTime _time = DateTime.now();
+  TimeOfDay? resetTime;
+  Future<void> viewTime(BuildContext context) async {
+    return await showDialog(
+        context: context,
+        builder: (context) {
+          return BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5),
+              child: AlertDialog(
+                  scrollable: true,
+                  title: Text('Add time'),
+                  content: Column(
+                    children: [
+                      SizedBox(
+                        height: 100,
+                        child: CupertinoDatePicker(
+                            initialDateTime: _time
+                                .add(Duration(minutes: 30 - _time.minute % 30)),
+                            minuteInterval: 30,
+                            mode: CupertinoDatePickerMode.time,
+                            onDateTimeChanged: (DateTime dateTime) {
+                              setState(() {
+                                _time = dateTime;
+                                resetTime = TimeOfDay.fromDateTime(
+                                    DateTime.parse('$_time'));
+                              });
+                            }),
+                      ),
+                      TextButton(
+                          style: TextButton.styleFrom(
+                              textStyle: TextStyle(fontSize: 20)),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Confirm Reschedule'))
+                    ],
+                  )));
+        });
+  }
+
+  Future<void> viewDetails(BuildContext context, var res) async {
+    return await showDialog(
+        context: context,
+        builder: (context) {
+          return BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5),
+              child: AlertDialog(
+                  scrollable: true,
+                  title: Text('Appointment Details'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Patient Name',
+                                style:
+                                    TextStyle(fontSize: 20, color: Colors.teal),
+                              ),
+                              Text(res.patient_Name),
+                              Container(
+                                height: 10,
+                              ),
+                              Text(
+                                'Date and Time',
+                                style:
+                                    TextStyle(fontSize: 20, color: Colors.teal),
+                              ),
+                              Row(
+                                children: [
+                                  Container(
+                                      margin: EdgeInsets.only(right: 20),
+                                      child: Text(res.date.substring(0, 10))),
+                                  Container(
+                                      child: Text((resetTime == null)
+                                          ? returnTime(res.time)
+                                          : returnTime(resetTime
+                                              .toString()
+                                              .substring(10, 15)))),
+                                  TextButton(
+                                      onPressed: () {
+                                        viewTime(context);
+                                      },
+                                      child: Text('?')),
+                                ],
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                              Text('Problem',
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.teal)),
+                              Text(res.problem)
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                            style: TextButton.styleFrom(
+                                textStyle: TextStyle(fontSize: 20)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                                (resetTime == null) ? 'ok' : 'Confirm Changes'))
+                      ],
+                    ),
+                  )));
+        });
   }
 
   @override
@@ -204,8 +325,16 @@ class _DoctorHomeState extends State<DoctorHome> {
                             count = 0;
                           }
                           if (controller.appointments[index].status ==
-                              'Pending') {
-                            return Container(
+                                  'pending' ||
+                              controller.appointments[index].status ==
+                                  'Pending') {
+                            print(controller.appointments[index].status);
+                            return GestureDetector(
+                              onTap: () {
+                                viewDetails(
+                                    context, controller.appointments[index]);
+                              },
+                              child: Container(
                                 margin: EdgeInsets.only(bottom: 10),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
@@ -256,7 +385,9 @@ class _DoctorHomeState extends State<DoctorHome> {
                                       ', ' +
                                       returnTime(
                                           controller.appointments[index].time)),
-                                ));
+                                ),
+                              ),
+                            );
                           } else {
                             count = count + 1;
                             if (count == controller.appointments.length) {
@@ -286,23 +417,33 @@ class _DoctorHomeState extends State<DoctorHome> {
                         itemBuilder: (context, index) {
                           if (controller.appointments[index].status ==
                               'Active') {
-                            return Container(
-                                margin: EdgeInsets.only(bottom: 10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.white),
-                                child: ListTile(
-                                  leading: Icon(Icons.circle),
-                                  title: Text(
-                                    controller.appointments[index].patient_Name,
-                                  ),
-                                  subtitle: Text(DateFormat('MMM d, yyyy')
-                                          .format(DateTime.parse(controller
-                                              .appointments[index].date)) +
-                                      ', ' +
-                                      returnTime(
-                                          controller.appointments[index].time)),
-                                ));
+                            return GestureDetector(
+                              onTap: () {
+                                if (Get.find<UserInfo>().role == 2) {
+                                  Navigator.of(context).pushNamed('/bloodTest',
+                                      arguments: controller
+                                          .appointments[index].patient_Name);
+                                }
+                              },
+                              child: Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white),
+                                  child: ListTile(
+                                    leading: Icon(Icons.circle),
+                                    title: Text(
+                                      controller
+                                          .appointments[index].patient_Name,
+                                    ),
+                                    subtitle: Text(DateFormat('MMM d, yyyy')
+                                            .format(DateTime.parse(controller
+                                                .appointments[index].date)) +
+                                        ', ' +
+                                        returnTime(controller
+                                            .appointments[index].time)),
+                                  )),
+                            );
                           } else {
                             return Container(
                               height: 0,
@@ -326,3 +467,12 @@ class _DoctorHomeState extends State<DoctorHome> {
     );
   }
 }
+
+
+// onTap: () {
+//                                 sendAppData(controller.appointments[index]);
+//                               },
+
+
+//  viewDetails(context, controller.appointments[index]);
+                             
